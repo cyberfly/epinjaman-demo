@@ -42,7 +42,11 @@ class SubmitPermohonan
     private function validateRequiredFields(Permohonan $permohonan): void
     {
         $isKwapbb = $permohonan->sumber_dana === SumberDana::KWAPBB;
-        $hasMinistry = $permohonan->ada_kementerian_pengawal === true;
+
+        // A controlling ministry is required for every path that reaches
+        // stage-1/stage-2 (DE, and KWAPBB-with-ministry) — only KWAPBB without
+        // a ministry skips it (ADR-0002).
+        $requiresMinistry = ! $permohonan->skipsCompletenessAndStageOne();
 
         Validator::make($permohonan->only([
             'tajuk',
@@ -59,7 +63,7 @@ class SubmitPermohonan
             'tempoh_bulan' => ['required', 'integer', 'min:1'],
             'sumber_dana' => ['required'],
             'ada_kementerian_pengawal' => [Rule::requiredIf($isKwapbb)],
-            'kementerian_pengawal_id' => [Rule::requiredIf($isKwapbb && $hasMinistry)],
+            'kementerian_pengawal_id' => [Rule::requiredIf($requiresMinistry)],
         ])->validate();
     }
 }

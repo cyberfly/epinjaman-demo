@@ -36,6 +36,7 @@ new #[Layout('layouts.app')] #[Title('Permohonan Saya')] class extends Component
                 <flux:table.column>{{ __('Tajuk') }}</flux:table.column>
                 <flux:table.column>{{ __('No. Rujukan') }}</flux:table.column>
                 <flux:table.column>{{ __('Status') }}</flux:table.column>
+                <flux:table.column>{{ __('Traffic Light') }}</flux:table.column>
                 <flux:table.column></flux:table.column>
             </flux:table.columns>
             <flux:table.rows>
@@ -47,14 +48,29 @@ new #[Layout('layouts.app')] #[Title('Permohonan Saya')] class extends Component
                             <flux:badge size="sm">{{ $permohonan->status->label() }}</flux:badge>
                         </flux:table.cell>
                         <flux:table.cell>
-                            <flux:button size="sm" variant="ghost" :href="route('permohonan.borang', $permohonan)" wire:navigate>
-                                {{ $permohonan->status === PermohonanStatus::Draf ? __('Edit') : __('Lihat') }}
-                            </flux:button>
+                            @if ($permohonan->traffic_light)
+                                <flux:badge size="sm" :color="$permohonan->traffic_light->color()">
+                                    {{ $permohonan->traffic_light->label() }}
+                                </flux:badge>
+                            @else
+                                —
+                            @endif
+                        </flux:table.cell>
+                        <flux:table.cell>
+                            @if ($permohonan->status === PermohonanStatus::MenungguSemakanKelengkapan)
+                                <flux:button size="sm" variant="primary" :href="route('permohonan.tandatangan-p1', $permohonan)" wire:navigate>
+                                    {{ __('Tandatangan P1') }}
+                                </flux:button>
+                            @else
+                                <flux:button size="sm" variant="ghost" :href="route('permohonan.borang', $permohonan)" wire:navigate>
+                                    {{ $permohonan->status === PermohonanStatus::Draf ? __('Edit') : __('Lihat') }}
+                                </flux:button>
+                            @endif
                         </flux:table.cell>
                     </flux:table.row>
                 @empty
                     <flux:table.row>
-                        <flux:table.cell colspan="4">{{ __('Tiada permohonan lagi.') }}</flux:table.cell>
+                        <flux:table.cell colspan="5">{{ __('Tiada permohonan lagi.') }}</flux:table.cell>
                     </flux:table.row>
                 @endforelse
             </flux:table.rows>

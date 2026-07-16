@@ -179,14 +179,14 @@ new #[Layout('layouts.app')] #[Title('Borang Permohonan')] class extends Compone
 
         @if ($sumber_dana === SumberDana::KWAPBB->value)
             <flux:switch wire:model.live="ada_kementerian_pengawal" :label="__('Ada Kementerian Pengawal?')" />
+        @endif
 
-            @if ($ada_kementerian_pengawal)
-                <flux:select wire:model="kementerian_pengawal_id" :label="__('Kementerian Pengawal')" placeholder="{{ __('Pilih kementerian') }}">
-                    @foreach ($this->kementerianList as $kementerian)
-                        <flux:select.option :value="$kementerian->id">{{ $kementerian->nama }}</flux:select.option>
-                    @endforeach
-                </flux:select>
-            @endif
+        @if ($sumber_dana === SumberDana::DE->value || ($sumber_dana === SumberDana::KWAPBB->value && $ada_kementerian_pengawal))
+            <flux:select wire:model="kementerian_pengawal_id" :label="__('Kementerian Pengawal')" placeholder="{{ __('Pilih kementerian') }}">
+                @foreach ($this->kementerianList as $kementerian)
+                    <flux:select.option :value="$kementerian->id">{{ $kementerian->nama }}</flux:select.option>
+                @endforeach
+            </flux:select>
         @endif
 
         <div class="flex gap-2">

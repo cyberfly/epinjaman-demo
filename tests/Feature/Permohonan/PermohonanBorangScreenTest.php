@@ -3,6 +3,7 @@
 use App\Enums\PermohonanStatus;
 use App\Enums\SumberDana;
 use App\Models\ChecklistItem;
+use App\Models\KementerianPengawal;
 use App\Models\Pemohon;
 use App\Models\Permohonan;
 use App\Models\User;
@@ -33,6 +34,7 @@ test('pemohon boleh isi & simpan borang sebagai draf', function () {
 test('pemohon boleh hantar borang lengkap dan status berubah', function () {
     $pemohon = Pemohon::factory()->create();
     $user = User::factory()->pemohon($pemohon)->create();
+    $kementerian = KementerianPengawal::factory()->create();
 
     Livewire::actingAs($user)
         ->test('pages::pemohon.permohonan.borang')
@@ -41,6 +43,7 @@ test('pemohon boleh hantar borang lengkap dan status berubah', function () {
         ->set('tujuan', 'Naik taraf')
         ->set('tempoh_bulan', 48)
         ->set('sumber_dana', SumberDana::DE->value)
+        ->set('kementerian_pengawal_id', $kementerian->id)
         ->call('submit')
         ->assertHasNoErrors()
         ->assertRedirect(route('permohonan.index'));

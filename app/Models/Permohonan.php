@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\PermohonanStatus;
 use App\Enums\SumberDana;
+use App\Enums\TrafficLight;
 use Database\Factories\PermohonanFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -18,6 +19,7 @@ use Illuminate\Support\Carbon;
  * @property int $pemohon_id
  * @property string|null $no_rujukan
  * @property PermohonanStatus $status
+ * @property TrafficLight|null $traffic_light
  * @property string|null $tajuk
  * @property string|null $tujuan
  * @property numeric-string|null $jumlah_dipohon
@@ -26,6 +28,7 @@ use Illuminate\Support\Carbon;
  * @property bool|null $ada_kementerian_pengawal
  * @property int|null $kementerian_pengawal_id
  * @property Carbon|null $dihantar_pada
+ * @property Carbon|null $dihantar_ke_kementerian_pada
  * @property-read Pemohon $pemohon
  * @property-read KementerianPengawal|null $kementerianPengawal
  */
@@ -46,6 +49,8 @@ class Permohonan extends Model
         'ada_kementerian_pengawal',
         'kementerian_pengawal_id',
         'dihantar_pada',
+        'dihantar_ke_kementerian_pada',
+        'traffic_light',
     ];
 
     /**
@@ -55,11 +60,13 @@ class Permohonan extends Model
     {
         return [
             'status' => PermohonanStatus::class,
+            'traffic_light' => TrafficLight::class,
             'sumber_dana' => SumberDana::class,
             'ada_kementerian_pengawal' => 'boolean',
             'jumlah_dipohon' => 'decimal:2',
             'tempoh_bulan' => 'integer',
             'dihantar_pada' => 'datetime',
+            'dihantar_ke_kementerian_pada' => 'datetime',
         ];
     }
 
@@ -88,21 +95,30 @@ class Permohonan extends Model
     }
 
     /**
-     * Whether a controlling ministry applies to this application (only relevant
-     * for KWAPBB-sourced applications — see ADR-0002).
+     * @return HasMany<DigitalSignature, $this>
      */
-    public function hasControllingMinistry(): bool
+    public function signatures(): HasMany
     {
-        return $this->ada_kementerian_pengawal === true && $this->kementerian_pengawal_id !== null;
+        return $this->hasMany(DigitalSignature::class);
     }
 
     /**
-     * KWAPBB without a controlling ministry skips the completeness check and
-     * stage-1 signature entirely (ADR-0002).
+     * Whether a controlling ministry is attached, and therefore stage-2 (KP
+     * signature) applies after stage-1 (see the process chart D -> F -> H).
+     */
+    public function hasKementerianPengawal(): bool
+    {
+        return $this->kementerian_pengawal_id !== null;
+    }
+
+    /**
+     * KWAPBB where the applicant answered "no controlling ministry" skips the
+     * completeness check and stage-1 signature entirely, going straight to SID
+     * (ADR-0002). DE and KWAPBB-with-ministry both take the normal path.
      */
     public function skipsCompletenessAndStageOne(): bool
     {
-        return $this->sumber_dana === SumberDana::KWAPBB && ! $this->hasControllingMinistry();
+        return $this->sumber_dana === SumberDana::KWAPBB && $this->ada_kementerian_pengawal !== true;
     }
 
     public function isLocked(): bool

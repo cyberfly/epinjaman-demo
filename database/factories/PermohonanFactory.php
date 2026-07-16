@@ -39,12 +39,12 @@ class PermohonanFactory extends Factory
         return $this->state(fn (array $attributes) => ['status' => $status]);
     }
 
-    public function de(): static
+    public function de(?KementerianPengawal $kementerian = null): static
     {
         return $this->state(fn (array $attributes) => [
             'sumber_dana' => SumberDana::DE,
             'ada_kementerian_pengawal' => false,
-            'kementerian_pengawal_id' => null,
+            'kementerian_pengawal_id' => $kementerian?->getKey() ?? KementerianPengawal::factory(),
         ]);
     }
 

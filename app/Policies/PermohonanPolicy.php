@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Enums\PermohonanStatus;
 use App\Enums\UserRole;
 use App\Models\Permohonan;
 use App\Models\User;
@@ -38,6 +39,16 @@ class PermohonanPolicy
     public function uploadDocument(User $user, Permohonan $permohonan): bool
     {
         return $this->update($user, $permohonan);
+    }
+
+    /**
+     * Only owning-organisation users may apply the stage-1 signature, and only
+     * while the application is awaiting the completeness check & stage-1.
+     */
+    public function signStagePertama(User $user, Permohonan $permohonan): bool
+    {
+        return $this->belongsToOrganisation($user, $permohonan)
+            && $permohonan->status === PermohonanStatus::MenungguSemakanKelengkapan;
     }
 
     private function belongsToOrganisation(User $user, Permohonan $permohonan): bool

@@ -37,6 +37,11 @@ class RepositorySeeder extends Seeder
                 'content' => 'Permohonan anda telah diterima dan kini dalam proses semakan. No. Rujukan: :no_rujukan.',
             ],
             [
+                'event' => 'permohonan.dihantar_kementerian',
+                'title' => 'Permohonan Baharu untuk Semakan Kementerian Pengawal',
+                'content' => 'Permohonan ":tajuk" telah dihantar ke kementerian anda untuk Tandatangan Peringkat 2.',
+            ],
+            [
                 'event' => 'kuiri.dicetus',
                 'title' => 'Kuiri Baharu bagi Permohonan :no_rujukan',
                 'content' => 'Terdapat kuiri yang memerlukan tindakan anda: :sebab. Sila balas sebelum :tarikh_akhir.',
