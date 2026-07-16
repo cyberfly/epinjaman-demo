@@ -18,6 +18,8 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        $this->call(RepositorySeeder::class);
+
         // One activated staff user per internal role, for local development.
         foreach (UserRole::cases() as $role) {
             if ($role === UserRole::Pemohon || $role === UserRole::KementerianPengawal) {
