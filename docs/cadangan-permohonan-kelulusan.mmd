@@ -1,0 +1,174 @@
+flowchart TD
+
+    %% -- Main process flow --
+    A["Mula: SID Jana ID Log Masuk & Akses"]
+    B["Notifikasi: E-mel Pengesahan Pendaftaran Akaun (Pautan Valid 24 Jam)"]
+    A --> B
+    C["Pemohon: Isi Borang Permohonan Pinjaman (Garis Panduan, ms 42-49, Repositori: Lampiran 6)"]
+    B --> C
+    E{"Sistem Semak: Sumber Dana?"}
+    C --> E
+    E2{"Sistem Semak: Borang Lengkap"}
+    E -->|"DE"| E2
+    KP{"Ada Kementerian Pengawal?"}
+    E -->|"Sumber KWAPBB"| KP
+    KP -->|"Ya"| E2
+    I["Hantar Borang ke Bahagian Pelaburan Strategik (SID)"]
+    KP -->|"Tidak"| I
+    E2 -->|"Dokumen Tidak Lengkap"| C
+    D["Tandatangan Digital Peringkat 1 (Pemohon): 'Disediakan' & 'Disahkan'"]
+    E2 --> D
+    F["Hantar ke Kementerian Pengawal"]
+    D --> F
+    F_NOTIF["Notifikasi"]
+    F --> F_NOTIF
+    G{"Traffic Light Semakan: Sebelum 31 Januari?"}
+    F_NOTIF --> G
+    G1["Indikator Kuning: Pop-up Peringatan Tarikh Akhir Hampir Tamat"]
+    G -->|"Menghampiri Had"| G1
+    G2["Indikator Merah: Pop-up Notifikasi Tempoh Permohonan Tamat"]
+    G -->|"Melepasi 31 Jan"| G2
+    H["Tandatangan Digital Peringkat 2 (Kementerian Pengawal: 'Disemak' & 'Diperaku'"]
+    G1 --> H
+    G2 --> H
+    H --> I
+    J["Notifikasi: E-mel Penerimaan Permohonan (Status: Dalam Proses Semakan) bersama No. Rujukan"]
+    I --> J
+    K["Sistem Menghantar ke Tray Tugasan (One Stop Center)"]
+    J --> K
+    K_SSID["SSID"]
+    K --> K_SSID
+    K_TSID["TSID"]
+    K_SSID --> K_TSID
+    K_KKID["KKID"]
+    K_TSID --> K_KKID
+    K_KSID["KSID"]
+    K_KKID --> K_KSID
+    K_PSID["PSID"]
+    K_KSID --> K_PSID
+    L["Semak Senarai Semak & Dokumen (Repositori: Lampiran 6, M/S 47-48)"]
+    K_PSID --> L
+    M{"Sistem Semak: Dokumen Lengkap & Teratur?"}
+    L --> M
+    N["Modul Kuiri: PSID Cetus Tindakan Kuiri dalam Sistem"]
+    M -->|"Tidak"| N
+    R["SID & Pemohon: Sesi Rundingan & Persetujuan Terma Syarat Pinjaman"]
+    M -->|"Ya"| R
+    O["Notifikasi E-mel Kuiri (Kepada Pemohon/Kementerian Pengawal): Sebab Kuiri, Pautan Tray Tindakan & Tarikh Akhir (7 Hari)"]
+    N --> O
+    P["Pemohon / Kementerian Pengawal Membalas Kuiri"]
+    O --> P
+    Q_CHECK{"Berpuas hati?"}
+    P --> Q_CHECK
+    Q_CHECK -->|"Tidak"| N
+    Q["Kuiri selesai"]
+    Q_CHECK -->|"Ya"| Q
+    Q --> R
+    S{"Traffic Light Rundingan: Sebelum 31 Mac?"}
+    R --> S
+    S1["Indikator Kuning: Pop-up Peringatan Memuktamadkan Terma & Syarat Utama"]
+    S -->|"Menghampiri Had"| S1
+    S2["Indikator Merah: Pop-up Notifikasi Tempoh Rundingan Melepasi Had (Sila Mohon Pelanjutan)"]
+    S -->|"Melepasi 31 Mac"| S2
+    T["Sediakan Memo Pertimbangan (Kertas Pertimbangan) Berserta Draf Terma & Syarat Utama dalam Sistem"]
+    S -->|"Normal/ Hijau"| T
+    S1 --> T
+    S2 --> T
+    T_PSID["PSID"]
+    T --> T_PSID
+    T_KSID["KSID"]
+    T_PSID --> T_KSID
+    T_KKID["KKID"]
+    T_KSID --> T_KKID
+    T_TSID["TSID"]
+    T_KKID --> T_TSID
+    T_SSID["SSID"]
+    T_TSID --> T_SSID
+    T_TKSPI["TKSP(I)"]
+    T_SSID --> T_TKSPI
+    T_KSP["KSP"]
+    T_TKSPI --> T_KSP
+    T_YBMK["YB MK"]
+    T_KSP --> T_YBMK
+    U{"Status Kelulusan?"}
+    T_YBMK --> U
+    T_YBMK --> R
+    V["Sistem: Jana Surat Tawaran Rasmi & Lampiran Terma & Syarat Utama Pinjaman (Lampiran 6)"]
+    U -->|"Lulus"| V
+    U -->|"Tidak Lulus"| R
+    W["Notifikasi Penawaran Pinjaman"]
+    V --> W
+    X_TL{"Traffic Light SST: Dalam Tempoh 14 Hari?"}
+    W --> X_TL
+    X_TL2["Indikator Merah: Pop-up Notifikasi Lewat Setuju Terima Pinjaman"]
+    X_TL -->|"Melepasi 14 Hari"| X_TL2
+    X_TL1["Indikator Kuning: Pop-up Peringatan Penghantaran Setuju Terima Tawaran"]
+    X_TL -->|"Menghampiri Had"| X_TL1
+    Y["Pemohon: Semak & Turunkan Tandatangan Digital pada Surat Akuan Penerimaan (Garis Panduan, ms 55-56, Repositori: Lampiran 6)"]
+    X_TL -->|"Normal/ Hijau"| Y
+    X_TL1 --> Y
+    X_TL2 --> Y
+    Y_TL{"Traffic Light Penyediaan Dokumen Perjanjian: Dalam Tempoh 90 Hari?"}
+    Y --> Y_TL
+    Y_TL1["Indikator Kuning: Pop-up Peringatan Penghantaran Setuju Terima Tawaran"]
+    Y_TL -->|"Menghampiri Had"| Y_TL1
+    Y_TL2["Indikator Merah: Pop-up Notifikasi Lewat Setuju Terima Pinjaman"]
+    Y_TL -->|"Melepasi 90 hari"| Y_TL2
+    Z0["Pemohon Muat Naik Draf Dokumen Perjanjian"]
+    Y_TL -->|"Normal/ Hijau"| Z0
+    Y_TL1 --> Z0
+    Y_TL2 --> Z0
+    Z["SID & Bahagian Undang-Undang MOF (BUU): Semak, Runding & Beri Pengesahan Perjanjian Teratur"]
+    Z0 --> Z
+    AA["Sesi Tandatangan Manual Dokumen Perjanjian (1 Set Asal Dimatikan Setem + 8 Set Salinan Asal)"]
+    Z --> AA
+    AB["Sistem Kemaskini Status Pengguna: PEMOHON bertukar menjadi PEMINJAM"]
+    AA --> AB
+    AC["Peminjam: Bawa Perjanjian untuk Urusan Penyeteman dan Pengesahan Cap Duti Setem LHDNM"]
+    AB --> AC
+    AD["Peminjam: Lengkapkan & Muat Naik Syarat Duluan (CP) dalam 60 Hari (Cagaran, Gadaian, Bukti Akaun/SLA)"]
+    AC --> AD
+    AD_TL{"Traffic Light CP: Dalam Tempoh 60 Hari?"}
+    AD --> AD_TL
+    AD_TL1["Indikator Kuning: Pop-up Peringatan Penyediaan Syarat Duluan (Conditions Precedent)"]
+    AD_TL -->|"Menghampiri Had"| AD_TL1
+    AD_TL2["Indikator Merah: Pop-up Notifikasi Syarat Duluan Melepasi Tempoh Ditetapkan"]
+    AD_TL -->|"Melepasi 60 Hari"| AD_TL2
+    AE["Tamat: Bukti CP & CS Disahkan Teratur, Modul Permohonan & Kelulusan Dikunci sebagai LENGKAP"]
+    AD_TL1 -->|"Normal/ Hijau"| AE
+    AD_TL2 --> AE
+
+    %% -- Reference / notification notes (dashed) --
+    B_NOTE["Rujuk Draf Notifikasi (Repositori: Lampiran 8)"]
+    B -.-> B_NOTE
+    D_NOTE["Tandatangan Digital oleh Pegawai yang diberi kuasa"]
+    D -.-> D_NOTE
+    F_NOTE["Wajib bagi DE & KWPBB Ber-Kementerian"]
+    F -.-> F_NOTE
+    F_NOTIF_NOTE["Rujuk Draf Notifikasi (Repositori: Lampiran 8)"]
+    F_NOTIF -.-> F_NOTIF_NOTE
+    H_NOTE["Tandatangan Digital oleh Pegawai yang diberi kuasa"]
+    H -.-> H_NOTE
+    J_NOTE["Rujuk Draf Notifikasi (Repositori: Lampiran 8)"]
+    J -.-> J_NOTE
+    W_NOTE["Rujuk Draf Notifikasi (Repositori: Lampiran 8)"]
+    W_NOTE -.-> W
+
+    %% -- Styling --
+    classDef decision fill:#cce5ff,stroke:#36393d,color:#333;
+    classDef process fill:#ECECFF,stroke:#9370DB,color:#333;
+    classDef success fill:#d5e8d4,stroke:#82b366,color:#333;
+    classDef notify fill:#fff2cc,stroke:#d6b656,color:#333;
+    classDef warn fill:#ffe6cc,stroke:#d79b00,color:#333;
+    classDef danger fill:#f8cecc,stroke:#b85450,color:#333;
+    classDef note fill:#f5f5f5,stroke:#999,color:#555,stroke-dasharray: 3 3;
+    classDef hier fill:#eeeeee,stroke:#666,color:#333;
+
+    class D_NOTE,H_NOTE,F_NOTIF_NOTE,W_NOTE,J_NOTE,F_NOTE,B_NOTE note;
+    class D,V,B,C,A,Q,AB,L,R,Z,P,N,AD,K,AA,F,AC,I process;
+    class T_PSID,T_TKSPI,T_KSP,T_SSID,T_YBMK,T_TSID,T_KKID,T_KSID,K_PSID,K_SSID,K_KSID,K_KKID,K_TSID hier;
+    class AD_TL,M,Q_CHECK,Y_TL,KP,X_TL,E,U,S,G,E2 decision;
+    class X_TL2,S2,G2,Y_TL2,AD_TL2 danger;
+    class AE,Y,T,Z0,H success;
+    class S1,AD_TL1,Y_TL1,X_TL1,G1 warn;
+    class J,O,F_NOTIF,W notify;

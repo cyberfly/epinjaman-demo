@@ -1,0 +1,3 @@
+# Permohonan KWAPBB tanpa Kementerian Pengawal langkau semakan kelengkapan & tandatangan Peringkat 1
+
+Ikut carta proses rasmi, jika Sumber Dana = KWAPBB dan tiada Kementerian Pengawal berkaitan, Permohonan terus dihantar ke SID (nod I) — melangkau semakan kelengkapan borang (E2) dan tandatangan digital Peringkat 1 Pemohon (D) sepenuhnya, berbeza daripada laluan DE/KWAPBB-ber-Kementerian yang wajib lalu kedua-dua langkah tersebut. Ini disahkan sengaja oleh pemilik proses (bukan kesilapan lukisan carta), jadi logik kod mengikut carta secara literal. Direkodkan supaya jurutera akan datang tidak "membetulkan" cabang ini dengan menambah semakan yang sepatutnya tiada bagi kes ini.

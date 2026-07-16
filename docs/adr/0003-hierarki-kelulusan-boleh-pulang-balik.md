@@ -1,0 +1,3 @@
+# Setiap peringkat hierarki kelulusan boleh pulangkan Memo Pertimbangan ke peringkat sebelumnya
+
+Carta proses melukis rantaian kelulusan (PSID→KSID→KKID→TSID→SSID→TKSP(I)→KSP→YB MK) dengan hanya SATU titik keputusan Lulus/Tidak Lulus di hujung (selepas YB MK), seolah-olah setiap peringkat pertengahan cuma endorse & terus ke hadapan. Kami memutuskan menambah keupayaan "Pulangkan untuk Pembetulan" di SETIAP peringkat (bukan hanya di hujung) kerana realiti operasi memerlukan pegawai pertengahan boleh menghantar balik Memo untuk pembetulan tanpa perlu tunggu sehingga YB MK menolaknya. Ini satu penyimpangan sengaja daripada carta literal — direkodkan supaya tidak disalah anggap sebagai ciri tambahan luar skop.

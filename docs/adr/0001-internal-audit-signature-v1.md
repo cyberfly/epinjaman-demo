@@ -1,0 +1,3 @@
+# Tandatangan Digital sebagai rekod audit dalaman untuk v1
+
+Carta proses memerlukan "Tandatangan Digital" di beberapa titik (Peringkat 1: Pemohon, Peringkat 2: Kementerian Pengawal, Surat Akuan Penerimaan). Kami memutuskan untuk v1 tidak mengintegrasikan penyedia e-tandatangan pihak ketiga yang sah dari segi undang-undang; sebaliknya "tandatangan" direkod sebagai tindakan diaudit dalam sistem (user_id, peranan, kenyataan, timestamp). Ini memendekkan masa pembangunan v1; integrasi e-signature sebenar (dengan kesahihan undang-undang penuh) boleh ditambah sebagai fasa berasingan kemudian tanpa mengubah struktur data teras (rekod audit kekal, hanya sumber pengesahan bertukar).
