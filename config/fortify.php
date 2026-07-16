@@ -161,7 +161,9 @@ return [
     */
 
     'features' => [
-        Features::registration(),
+        // Self-registration is intentionally disabled: Pemohon accounts are
+        // provisioned by SID, never through an open registration flow.
+        // See ticket 01 and spec Implementation Decisions.
         Features::resetPasswords(),
         Features::emailVerification(),
         Features::twoFactorAuthentication([

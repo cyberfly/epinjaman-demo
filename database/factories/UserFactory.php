@@ -2,6 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Enums\UserRole;
+use App\Models\Pemohon;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
@@ -43,6 +45,39 @@ class UserFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
+        ]);
+    }
+
+    /**
+     * Assign a role to the user.
+     */
+    public function role(UserRole $role): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => $role,
+        ]);
+    }
+
+    /**
+     * Make the user a Pemohon belonging to the given (or a new) organisation.
+     */
+    public function pemohon(?Pemohon $pemohon = null): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => UserRole::Pemohon,
+            'pemohon_id' => $pemohon?->getKey() ?? Pemohon::factory(),
+        ]);
+    }
+
+    /**
+     * Indicate the account has not yet been activated (no password set,
+     * email unverified).
+     */
+    public function unactivated(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'email_verified_at' => null,
+            'activated_at' => null,
         ]);
     }
 
