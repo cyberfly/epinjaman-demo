@@ -23,4 +23,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('admin.checklist-items');
     Route::livewire('admin/notification-templates', 'pages::admin.notification-templates')
         ->name('admin.notification-templates');
+
+    // Pemohon — loan application form.
+    Route::livewire('permohonan', 'pages::pemohon.permohonan.index')
+        ->name('permohonan.index');
+    Route::livewire('permohonan/baharu', 'pages::pemohon.permohonan.borang')
+        ->name('permohonan.baharu');
+    Route::livewire('permohonan/{permohonan}', 'pages::pemohon.permohonan.borang')
+        ->name('permohonan.borang');
 });

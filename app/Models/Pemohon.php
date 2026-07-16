@@ -42,8 +42,15 @@ class Pemohon extends Model
         return $this->hasMany(User::class);
     }
 
-    // Note: permohonans() relationship is added in ticket 03 when the
-    // Permohonan model exists. A Pemohon hasMany Permohonan over time.
+    /**
+     * A Pemohon organisation may hold several Permohonan over time.
+     *
+     * @return HasMany<Permohonan, $this>
+     */
+    public function permohonans(): HasMany
+    {
+        return $this->hasMany(Permohonan::class);
+    }
 
     public function isPeminjam(): bool
     {
