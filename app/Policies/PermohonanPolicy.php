@@ -51,6 +51,18 @@ class PermohonanPolicy
             && $permohonan->status === PermohonanStatus::MenungguSemakanKelengkapan;
     }
 
+    /**
+     * Only an officer of the application's controlling ministry may apply the
+     * stage-2 signature, while it awaits the ministry.
+     */
+    public function signStageKedua(User $user, Permohonan $permohonan): bool
+    {
+        return $user->role === UserRole::KementerianPengawal
+            && $user->kementerian_pengawal_id !== null
+            && $user->kementerian_pengawal_id === $permohonan->kementerian_pengawal_id
+            && $permohonan->status === PermohonanStatus::MenungguTandatanganKementerianPengawal;
+    }
+
     private function belongsToOrganisation(User $user, Permohonan $permohonan): bool
     {
         return $user->pemohon_id !== null && $user->pemohon_id === $permohonan->pemohon_id;

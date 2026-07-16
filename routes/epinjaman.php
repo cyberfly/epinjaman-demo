@@ -33,4 +33,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('permohonan.tandatangan-p1');
     Route::livewire('permohonan/{permohonan}', 'pages::pemohon.permohonan.borang')
         ->name('permohonan.borang');
+
+    // Kementerian Pengawal — stage-2 tray & signature.
+    Route::livewire('kementerian/tray', 'pages::kementerian.tray')
+        ->name('kementerian.tray');
+    Route::livewire('kementerian/permohonan/{permohonan}/tandatangan-p2', 'pages::kementerian.tandatangan-p2')
+        ->name('kementerian.tandatangan-p2');
 });

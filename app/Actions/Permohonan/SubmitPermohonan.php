@@ -20,18 +20,21 @@ use Illuminate\Validation\ValidationException;
  */
 class SubmitPermohonan
 {
+    public function __construct(private ReceiveAtSid $receiveAtSid) {}
+
     public function handle(Permohonan $permohonan): Permohonan
     {
         $this->validateRequiredFields($permohonan);
 
-        $status = $permohonan->skipsCompletenessAndStageOne()
-            ? PermohonanStatus::DalamSemakanSID
-            : PermohonanStatus::MenungguSemakanKelengkapan;
+        $permohonan->update(['dihantar_pada' => now()]);
 
-        $permohonan->update([
-            'status' => $status,
-            'dihantar_pada' => now(),
-        ]);
+        // KWAPBB without a controlling ministry goes straight to SID, skipping
+        // the completeness check and stage-1 signature (ADR-0002).
+        if ($permohonan->skipsCompletenessAndStageOne()) {
+            return $this->receiveAtSid->handle($permohonan);
+        }
+
+        $permohonan->update(['status' => PermohonanStatus::MenungguSemakanKelengkapan]);
 
         return $permohonan;
     }
