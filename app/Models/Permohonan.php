@@ -106,6 +106,14 @@ class Permohonan extends Model
     }
 
     /**
+     * @return HasMany<DocumentReview, $this>
+     */
+    public function documentReviews(): HasMany
+    {
+        return $this->hasMany(DocumentReview::class);
+    }
+
+    /**
      * Whether a controlling ministry is attached, and therefore stage-2 (KP
      * signature) applies after stage-1 (see the process chart D -> F -> H).
      */

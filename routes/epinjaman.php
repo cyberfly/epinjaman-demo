@@ -39,4 +39,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('kementerian.tray');
     Route::livewire('kementerian/permohonan/{permohonan}/tandatangan-p2', 'pages::kementerian.tandatangan-p2')
         ->name('kementerian.tandatangan-p2');
+
+    // SID — task tray & document checklist review.
+    Route::livewire('sid/tray', 'pages::sid.tray')->name('sid.tray');
+    Route::livewire('sid/permohonan/{permohonan}/semakan-dokumen', 'pages::sid.semakan-dokumen')
+        ->name('sid.semakan-dokumen');
 });

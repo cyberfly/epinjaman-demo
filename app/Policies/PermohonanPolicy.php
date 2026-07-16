@@ -63,6 +63,15 @@ class PermohonanPolicy
             && $permohonan->status === PermohonanStatus::MenungguTandatanganKementerianPengawal;
     }
 
+    /**
+     * Only PSID may review the checklist while the application is in SID review.
+     */
+    public function reviewDocuments(User $user, Permohonan $permohonan): bool
+    {
+        return $user->role === UserRole::PSID
+            && $permohonan->status === PermohonanStatus::DalamSemakanSID;
+    }
+
     private function belongsToOrganisation(User $user, Permohonan $permohonan): bool
     {
         return $user->pemohon_id !== null && $user->pemohon_id === $permohonan->pemohon_id;
