@@ -93,6 +93,25 @@ class PermohonanPolicy
         return $this->belongsToOrganisation($user, $permohonan) || $this->belongsToControllingMinistry($user, $permohonan);
     }
 
+    /**
+     * SID or the owning organisation may record negotiation terms while in
+     * the Rundingan stage.
+     */
+    public function recordRundingan(User $user, Permohonan $permohonan): bool
+    {
+        return $permohonan->status === PermohonanStatus::DalamRundingan
+            && ($user->isSid() || $this->belongsToOrganisation($user, $permohonan));
+    }
+
+    /**
+     * Only PSID may prepare the Memo Pertimbangan, in the Rundingan stage.
+     */
+    public function prepareMemo(User $user, Permohonan $permohonan): bool
+    {
+        return $user->role === UserRole::PSID
+            && $permohonan->status === PermohonanStatus::DalamRundingan;
+    }
+
     private function belongsToControllingMinistry(User $user, Permohonan $permohonan): bool
     {
         return $user->role === UserRole::KementerianPengawal

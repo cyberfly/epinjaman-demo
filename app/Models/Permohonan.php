@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Carbon;
 
 /**
@@ -120,6 +121,22 @@ class Permohonan extends Model
     public function kuiris(): HasMany
     {
         return $this->hasMany(Kuiri::class);
+    }
+
+    /**
+     * @return HasMany<Rundingan, $this>
+     */
+    public function rundingans(): HasMany
+    {
+        return $this->hasMany(Rundingan::class);
+    }
+
+    /**
+     * @return HasOne<Memo, $this>
+     */
+    public function memo(): HasOne
+    {
+        return $this->hasOne(Memo::class)->latestOfMany();
     }
 
     /**

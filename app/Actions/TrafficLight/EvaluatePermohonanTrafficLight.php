@@ -45,20 +45,25 @@ class EvaluatePermohonanTrafficLight
     {
         return match ($permohonan->status) {
             PermohonanStatus::MenungguTandatanganKementerianPengawal => [
-                $this->next31January($permohonan->dihantar_ke_kementerian_pada ?? $permohonan->created_at),
+                $this->nextAnnualDate($permohonan->dihantar_ke_kementerian_pada ?? $permohonan->created_at, 1, 31),
                 self::WARNING_DAYS_CALENDAR,
                 'Semakan',
+            ],
+            PermohonanStatus::DalamRundingan => [
+                $this->nextAnnualDate($permohonan->diterima_sid_pada ?? $permohonan->created_at, 3, 31),
+                self::WARNING_DAYS_CALENDAR,
+                'Rundingan',
             ],
             default => null,
         };
     }
 
     /**
-     * The next 31 January on or after the reference date.
+     * The next occurrence of month/day on or after the reference date.
      */
-    private function next31January(CarbonInterface $from): CarbonInterface
+    private function nextAnnualDate(CarbonInterface $from, int $month, int $day): CarbonInterface
     {
-        $candidate = $from->copy()->setDate($from->year, 1, 31)->startOfDay();
+        $candidate = $from->copy()->setDate($from->year, $month, $day)->startOfDay();
 
         return $candidate->greaterThanOrEqualTo($from->copy()->startOfDay())
             ? $candidate

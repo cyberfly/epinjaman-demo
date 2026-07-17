@@ -68,6 +68,10 @@ new #[Layout('layouts.app')] #[Title('Tray Tugasan SID')] class extends Componen
                                 <flux:button size="sm" variant="primary" :href="route('sid.kuiri', $permohonan)" wire:navigate>
                                     {{ __('Kuiri') }}
                                 </flux:button>
+                            @elseif ($permohonan->status === PermohonanStatus::DalamRundingan)
+                                <flux:button size="sm" variant="primary" :href="route('sid.rundingan', $permohonan)" wire:navigate>
+                                    {{ __('Rundingan / Memo') }}
+                                </flux:button>
                             @endif
                         </flux:table.cell>
                     </flux:table.row>
