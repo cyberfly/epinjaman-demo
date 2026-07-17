@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\KuiriStatus;
 use App\Enums\PermohonanStatus;
 use App\Enums\SumberDana;
 use App\Enums\TrafficLight;
@@ -111,6 +112,24 @@ class Permohonan extends Model
     public function documentReviews(): HasMany
     {
         return $this->hasMany(DocumentReview::class);
+    }
+
+    /**
+     * @return HasMany<Kuiri, $this>
+     */
+    public function kuiris(): HasMany
+    {
+        return $this->hasMany(Kuiri::class);
+    }
+
+    /**
+     * Whether every Kuiri raised on this application is Berpuas Hati and at
+     * least one Kuiri exists (ticket 07 gate to Rundingan).
+     */
+    public function semuaKuiriBerpuasHati(): bool
+    {
+        return $this->kuiris()->exists()
+            && ! $this->kuiris()->where('status', '!=', KuiriStatus::BerpuasHati->value)->exists();
     }
 
     /**

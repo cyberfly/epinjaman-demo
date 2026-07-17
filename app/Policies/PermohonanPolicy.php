@@ -72,6 +72,34 @@ class PermohonanPolicy
             && $permohonan->status === PermohonanStatus::DalamSemakanSID;
     }
 
+    /**
+     * Only PSID may raise and resolve Kuiri, during SID review / Kuiri stages.
+     */
+    public function manageKuiri(User $user, Permohonan $permohonan): bool
+    {
+        return $user->role === UserRole::PSID
+            && in_array($permohonan->status, [PermohonanStatus::DalamSemakanSID, PermohonanStatus::DalamKuiri], true);
+    }
+
+    /**
+     * The owning organisation or the controlling ministry may reply to Kuiri.
+     */
+    public function replyKuiri(User $user, Permohonan $permohonan): bool
+    {
+        if ($permohonan->status !== PermohonanStatus::DalamKuiri) {
+            return false;
+        }
+
+        return $this->belongsToOrganisation($user, $permohonan) || $this->belongsToControllingMinistry($user, $permohonan);
+    }
+
+    private function belongsToControllingMinistry(User $user, Permohonan $permohonan): bool
+    {
+        return $user->role === UserRole::KementerianPengawal
+            && $user->kementerian_pengawal_id !== null
+            && $user->kementerian_pengawal_id === $permohonan->kementerian_pengawal_id;
+    }
+
     private function belongsToOrganisation(User $user, Permohonan $permohonan): bool
     {
         return $user->pemohon_id !== null && $user->pemohon_id === $permohonan->pemohon_id;

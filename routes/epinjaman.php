@@ -44,4 +44,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::livewire('sid/tray', 'pages::sid.tray')->name('sid.tray');
     Route::livewire('sid/permohonan/{permohonan}/semakan-dokumen', 'pages::sid.semakan-dokumen')
         ->name('sid.semakan-dokumen');
+    Route::livewire('sid/permohonan/{permohonan}/kuiri', 'pages::sid.kuiri')
+        ->name('sid.kuiri');
+
+    // Kuiri reply (Pemohon / Kementerian Pengawal).
+    Route::livewire('kuiri/{kuiri}/balas', 'pages::kuiri.balas')->name('kuiri.balas');
 });
