@@ -73,4 +73,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Approval hierarchy.
     Route::livewire('kelulusan/tray', 'pages::kelulusan.tray')->name('kelulusan.tray');
     Route::livewire('kelulusan/memo/{memo}', 'pages::kelulusan.memo')->name('kelulusan.memo');
+
+    // BUU — agreement review tray.
+    Route::livewire('buu/tray', 'pages::buu.tray')->name('buu.tray');
 });

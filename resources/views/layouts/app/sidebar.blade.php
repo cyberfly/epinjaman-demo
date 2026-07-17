@@ -16,6 +16,50 @@
                         {{ __('Dashboard') }}
                     </flux:sidebar.item>
                 </flux:sidebar.group>
+
+                @php($role = auth()->user()?->role)
+                @if ($role)
+                    <flux:sidebar.group :heading="__('ePinjaman')" class="grid">
+                        @if ($role === \App\Enums\UserRole::Pemohon)
+                            <flux:sidebar.item icon="document-text" :href="route('permohonan.index')" :current="request()->routeIs('permohonan.*')" wire:navigate>
+                                {{ __('Permohonan Saya') }}
+                            </flux:sidebar.item>
+                        @endif
+
+                        @if ($role === \App\Enums\UserRole::KementerianPengawal)
+                            <flux:sidebar.item icon="inbox" :href="route('kementerian.tray')" :current="request()->routeIs('kementerian.*')" wire:navigate>
+                                {{ __('Tray Kementerian') }}
+                            </flux:sidebar.item>
+                        @endif
+
+                        @if ($role === \App\Enums\UserRole::PSID)
+                            <flux:sidebar.item icon="inbox" :href="route('sid.tray')" :current="request()->routeIs('sid.*')" wire:navigate>
+                                {{ __('Tray SID') }}
+                            </flux:sidebar.item>
+                        @endif
+
+                        @if (in_array($role, \App\Enums\UserRole::approvalHierarchy(), true))
+                            <flux:sidebar.item icon="check-circle" :href="route('kelulusan.tray')" :current="request()->routeIs('kelulusan.*')" wire:navigate>
+                                {{ __('Tray Kelulusan') }}
+                            </flux:sidebar.item>
+                        @endif
+
+                        @if ($role === \App\Enums\UserRole::BUU)
+                            <flux:sidebar.item icon="scale" :href="route('buu.tray')" :current="request()->routeIs('buu.*')" wire:navigate>
+                                {{ __('Tray BUU (Perjanjian)') }}
+                            </flux:sidebar.item>
+                        @endif
+
+                        @if ($role === \App\Enums\UserRole::Admin)
+                            <flux:sidebar.item icon="clipboard-document-list" :href="route('admin.checklist-items')" :current="request()->routeIs('admin.checklist-items')" wire:navigate>
+                                {{ __('Senarai Semak (L6)') }}
+                            </flux:sidebar.item>
+                            <flux:sidebar.item icon="envelope" :href="route('admin.notification-templates')" :current="request()->routeIs('admin.notification-templates')" wire:navigate>
+                                {{ __('Templat Notifikasi (L8)') }}
+                            </flux:sidebar.item>
+                        @endif
+                    </flux:sidebar.group>
+                @endif
             </flux:sidebar.nav>
 
             <flux:spacer />
