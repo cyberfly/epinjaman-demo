@@ -213,15 +213,6 @@ class Permohonan extends Model
     }
 
     /**
-     * Whether a controlling ministry is attached, and therefore stage-2 (KP
-     * signature) applies after stage-1 (see the process chart D -> F -> H).
-     */
-    public function hasKementerianPengawal(): bool
-    {
-        return $this->kementerian_pengawal_id !== null;
-    }
-
-    /**
      * KWAPBB where the applicant answered "no controlling ministry" skips the
      * completeness check and stage-1 signature entirely, going straight to SID
      * (ADR-0002). DE and KWAPBB-with-ministry both take the normal path.

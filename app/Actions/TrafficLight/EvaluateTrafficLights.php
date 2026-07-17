@@ -51,7 +51,9 @@ class EvaluateTrafficLights
     {
         $recipients = $permohonan->pemohon->users;
 
-        if ($permohonan->kementerian_pengawal_id !== null) {
+        // The Kementerian Pengawal is only a warning recipient at the Semakan
+        // stage (spec story 21); later stages notify the Pemohon/Peminjam only.
+        if ($assessment->stageLabel === 'Semakan' && $permohonan->kementerian_pengawal_id !== null) {
             $recipients = $recipients->merge($permohonan->kementerianPengawal->users);
         }
 
