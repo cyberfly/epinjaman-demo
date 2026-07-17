@@ -9,6 +9,7 @@ use App\Models\Permohonan;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Livewire\Features\SupportLockedProperties\CannotUpdateLockedPropertyException;
 use Livewire\Livewire;
 
 test('pemohon boleh isi & simpan borang sebagai draf', function () {
@@ -21,7 +22,6 @@ test('pemohon boleh isi & simpan borang sebagai draf', function () {
         ->set('jumlah_dipohon', '500000')
         ->set('tujuan', 'Pembangunan')
         ->set('tempoh_bulan', 36)
-        ->set('sumber_dana', SumberDana::DE->value)
         ->call('saveDraft')
         ->assertHasNoErrors();
 
@@ -35,20 +35,20 @@ test('pemohon boleh hantar borang lengkap dan status berubah', function () {
     $pemohon = Pemohon::factory()->create();
     $user = User::factory()->pemohon($pemohon)->create();
     $kementerian = KementerianPengawal::factory()->create();
+    // Sumber Dana (DE) is set upstream, not on the form (ticket 14/16).
+    $permohonan = Permohonan::factory()->for($pemohon)->de($kementerian)->status(PermohonanStatus::Draf)->create();
 
     Livewire::actingAs($user)
-        ->test('pages::pemohon.permohonan.borang')
+        ->test('pages::pemohon.permohonan.borang', ['permohonan' => $permohonan])
         ->set('tajuk', 'Projek Lengkap')
         ->set('jumlah_dipohon', '750000')
         ->set('tujuan', 'Naik taraf')
         ->set('tempoh_bulan', 48)
-        ->set('sumber_dana', SumberDana::DE->value)
-        ->set('kementerian_pengawal_id', $kementerian->id)
         ->call('submit')
         ->assertHasNoErrors()
         ->assertRedirect(route('permohonan.index'));
 
-    expect($pemohon->permohonans()->first()->status)->toBe(PermohonanStatus::MenungguSemakanKelengkapan);
+    expect($permohonan->refresh()->status)->toBe(PermohonanStatus::MenungguSemakanKelengkapan);
 });
 
 test('borang tidak boleh dihantar tanpa medan wajib', function () {
@@ -121,4 +121,57 @@ test('hantar semula permohonan bukan draf ditolak (403)', function () {
         ->test('pages::pemohon.permohonan.borang', ['permohonan' => $permohonan])
         ->call('submit')
         ->assertForbidden();
+});
+
+test('sumber dana dipaparkan sebagai medan baca-sahaja, bukan select boleh-pilih', function () {
+    $pemohon = Pemohon::factory()->create();
+    $user = User::factory()->pemohon($pemohon)->create();
+    $permohonan = Permohonan::factory()->for($pemohon)->kwapbbDenganKementerian()->status(PermohonanStatus::Draf)->create();
+
+    Livewire::actingAs($user)
+        ->test('pages::pemohon.permohonan.borang', ['permohonan' => $permohonan])
+        ->assertOk()
+        ->assertSeeHtml('data-test="sumber-dana-readonly"')
+        ->assertSeeHtml(SumberDana::KWAPBB->label())
+        ->assertDontSeeHtml('wire:model.live="sumber_dana"');
+});
+
+test('sumber dana null dipaparkan sebagai sengkang', function () {
+    $pemohon = Pemohon::factory()->create();
+    $user = User::factory()->pemohon($pemohon)->create();
+    $permohonan = Permohonan::factory()->for($pemohon)->status(PermohonanStatus::Draf)->create(['sumber_dana' => null]);
+
+    Livewire::actingAs($user)
+        ->test('pages::pemohon.permohonan.borang', ['permohonan' => $permohonan])
+        ->assertOk()
+        ->assertSeeHtml('data-test="sumber-dana-readonly"')
+        ->assertSee('—');
+});
+
+test('pemohon tidak boleh menetapkan sumber dana daripada borang', function () {
+    $pemohon = Pemohon::factory()->create();
+    $user = User::factory()->pemohon($pemohon)->create();
+    $permohonan = Permohonan::factory()->for($pemohon)->de()->status(PermohonanStatus::Draf)->create();
+
+    $component = Livewire::actingAs($user)
+        ->test('pages::pemohon.permohonan.borang', ['permohonan' => $permohonan]);
+
+    expect(fn () => $component->set('sumber_dana', SumberDana::KWAPBB->value))
+        ->toThrow(CannotUpdateLockedPropertyException::class);
+});
+
+test('simpan draf tidak mengubah sumber dana yang ditetapkan di hulu', function () {
+    $pemohon = Pemohon::factory()->create();
+    $user = User::factory()->pemohon($pemohon)->create();
+    $permohonan = Permohonan::factory()->for($pemohon)->de()->status(PermohonanStatus::Draf)->create();
+
+    Livewire::actingAs($user)
+        ->test('pages::pemohon.permohonan.borang', ['permohonan' => $permohonan])
+        ->set('tajuk', 'Tajuk Dikemas Kini')
+        ->call('saveDraft')
+        ->assertHasNoErrors();
+
+    expect($permohonan->refresh())
+        ->tajuk->toBe('Tajuk Dikemas Kini')
+        ->sumber_dana->toBe(SumberDana::DE);
 });

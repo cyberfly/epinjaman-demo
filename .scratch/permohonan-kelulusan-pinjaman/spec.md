@@ -23,7 +23,7 @@ Bina sistem ePinjaman berasaskan Laravel/Livewire yang memodelkan keseluruhan ki
 
 ### Borang Permohonan
 
-7. Sebagai Pemohon, saya mahu isi Borang Permohonan Pinjaman berstruktur (medan seperti jumlah dipohon, tujuan, tempoh, sumber dana, dan medan lain mengikut Garis Panduan ms 42-49), supaya maklumat permohonan tersimpan secara sistematik dan boleh disemak/dilaporkan.
+7. Sebagai Pemohon, saya mahu isi Borang Permohonan Pinjaman berstruktur (medan seperti jumlah dipohon, tujuan, tempoh, dan medan lain mengikut Garis Panduan ms 42-49), supaya maklumat permohonan tersimpan secara sistematik dan boleh disemak/dilaporkan. Sumber dana tidak boleh dipilih, hanya read only.
 8. Sebagai Pemohon, saya mahu muat naik dokumen sokongan mengikut senarai semak Repositori Lampiran 6, supaya dokumen lengkap dikemukakan bersama borang.
 9. Sebagai Pemohon, saya mahu simpan borang sebagai draf sebelum menghantar, supaya saya boleh sambung kerja lain kali tanpa kehilangan input.
 10. Sebagai sistem, saya mahu semak Sumber Dana yang dipilih Pemohon (DE atau KWAPBB), supaya laluan semakan yang betul digunakan.

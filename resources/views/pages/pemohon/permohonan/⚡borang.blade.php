@@ -10,6 +10,7 @@ use App\Models\Permohonan;
 use Flux\Flux;
 use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\Locked;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -27,6 +28,12 @@ new #[Layout('layouts.app')] #[Title('Borang Permohonan')] class extends Compone
 
     public ?int $tempoh_bulan = null;
 
+    /**
+     * Read-only on the Pemohon form: the funding source is set upstream (SID),
+     * never chosen here (ticket 14). Locked so a crafted request cannot change
+     * it, and dropped from the write path (see formData()).
+     */
+    #[Locked]
     public ?string $sumber_dana = null;
 
     public ?bool $ada_kementerian_pengawal = null;
@@ -83,6 +90,18 @@ new #[Layout('layouts.app')] #[Title('Borang Permohonan')] class extends Compone
         return $this->permohonanId !== null ? Permohonan::with('documents')->find($this->permohonanId) : null;
     }
 
+    /**
+     * Human label of the stored funding source for read-only display, or a
+     * dash when none has been set upstream yet (ticket 14).
+     */
+    #[\Livewire\Attributes\Computed]
+    public function sumberDanaLabel(): string
+    {
+        $sumber = $this->sumber_dana !== null ? SumberDana::tryFrom($this->sumber_dana) : null;
+
+        return $sumber?->label() ?? '—';
+    }
+
     private function formData(): array
     {
         return [
@@ -90,7 +109,6 @@ new #[Layout('layouts.app')] #[Title('Borang Permohonan')] class extends Compone
             'jumlah_dipohon' => $this->jumlah_dipohon,
             'tujuan' => $this->tujuan ?: null,
             'tempoh_bulan' => $this->tempoh_bulan,
-            'sumber_dana' => $this->sumber_dana,
             'ada_kementerian_pengawal' => $this->ada_kementerian_pengawal,
             'kementerian_pengawal_id' => $this->kementerian_pengawal_id,
         ];
@@ -171,11 +189,13 @@ new #[Layout('layouts.app')] #[Title('Borang Permohonan')] class extends Compone
         <flux:textarea wire:model="tujuan" :label="__('Tujuan')" />
         <flux:input wire:model="tempoh_bulan" type="number" :label="__('Tempoh (bulan)')" />
 
-        <flux:select wire:model.live="sumber_dana" :label="__('Sumber Dana')" placeholder="{{ __('Pilih sumber dana') }}">
-            @foreach (SumberDana::cases() as $sumber)
-                <flux:select.option :value="$sumber->value">{{ $sumber->label() }}</flux:select.option>
-            @endforeach
-        </flux:select>
+        <flux:input
+            :value="$this->sumberDanaLabel"
+            :label="__('Sumber Dana')"
+            :description="__('Ditetapkan di peringkat SID — tidak boleh diubah oleh Pemohon.')"
+            readonly
+            data-test="sumber-dana-readonly"
+        />
 
         @if ($sumber_dana === SumberDana::KWAPBB->value)
             <flux:switch wire:model.live="ada_kementerian_pengawal" :label="__('Ada Kementerian Pengawal?')" />
