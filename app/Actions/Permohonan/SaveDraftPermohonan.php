@@ -9,7 +9,9 @@ use Illuminate\Support\Arr;
 
 /**
  * Create or update a draft Permohonan for a Pemohon organisation. Only the
- * structured form fields are written; status/routing is decided at submission.
+ * loan-detail form fields are written from the request; the funding-source
+ * routing determinants are never accepted from the Pemohon — a new draft
+ * inherits them from the organisation (ticket 16, ADR-0004).
  */
 class SaveDraftPermohonan
 {
@@ -18,9 +20,6 @@ class SaveDraftPermohonan
         'jumlah_dipohon',
         'tujuan',
         'tempoh_bulan',
-        'sumber_dana',
-        'ada_kementerian_pengawal',
-        'kementerian_pengawal_id',
     ];
 
     /**
@@ -38,6 +37,9 @@ class SaveDraftPermohonan
 
         return $pemohon->permohonans()->create($attributes + [
             'status' => PermohonanStatus::Draf,
+            'sumber_dana' => $pemohon->sumber_dana,
+            'ada_kementerian_pengawal' => $pemohon->ada_kementerian_pengawal,
+            'kementerian_pengawal_id' => $pemohon->kementerian_pengawal_id,
         ]);
     }
 }

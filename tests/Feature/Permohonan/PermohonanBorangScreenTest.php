@@ -8,6 +8,7 @@ use App\Models\Pemohon;
 use App\Models\Permohonan;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Features\SupportLockedProperties\CannotUpdateLockedPropertyException;
 use Livewire\Livewire;
@@ -174,4 +175,81 @@ test('simpan draf tidak mengubah sumber dana yang ditetapkan di hulu', function 
     expect($permohonan->refresh())
         ->tajuk->toBe('Tajuk Dikemas Kini')
         ->sumber_dana->toBe(SumberDana::DE);
+});
+
+test('kementerian pengawal dipaparkan baca-sahaja daripada nilai tersimpan', function () {
+    $kementerian = KementerianPengawal::factory()->create(['nama' => 'Kementerian Contoh']);
+    $pemohon = Pemohon::factory()->create();
+    $user = User::factory()->pemohon($pemohon)->create();
+    $permohonan = Permohonan::factory()->for($pemohon)->de($kementerian)->status(PermohonanStatus::Draf)->create();
+
+    Livewire::actingAs($user)
+        ->test('pages::pemohon.permohonan.borang', ['permohonan' => $permohonan])
+        ->assertOk()
+        ->assertSeeHtml('data-test="kementerian-pengawal-readonly"')
+        ->assertSee('Kementerian Contoh')
+        ->assertDontSeeHtml('wire:model.live="ada_kementerian_pengawal"')
+        ->assertDontSeeHtml('wire:model="kementerian_pengawal_id"');
+});
+
+test('pemohon tidak boleh menetapkan kementerian pengawal daripada borang', function () {
+    $pemohon = Pemohon::factory()->create();
+    $user = User::factory()->pemohon($pemohon)->create();
+    $permohonan = Permohonan::factory()->for($pemohon)->de()->status(PermohonanStatus::Draf)->create();
+
+    $component = Livewire::actingAs($user)
+        ->test('pages::pemohon.permohonan.borang', ['permohonan' => $permohonan]);
+
+    expect(fn () => $component->set('kementerian_pengawal_id', 999))
+        ->toThrow(CannotUpdateLockedPropertyException::class);
+});
+
+test('borang baharu mewarisi paparan sumber dana daripada organisasi', function () {
+    $kementerian = KementerianPengawal::factory()->create();
+    $pemohon = Pemohon::factory()->kwapbbDenganKementerian($kementerian)->create();
+    $user = User::factory()->pemohon($pemohon)->create();
+
+    Livewire::actingAs($user)
+        ->test('pages::pemohon.permohonan.borang')
+        ->assertOk()
+        ->assertSeeHtml(SumberDana::KWAPBB->label());
+});
+
+test('draf baharu mewarisi routing DE dan boleh dihantar hujung-ke-hujung', function () {
+    $kementerian = KementerianPengawal::factory()->create();
+    $pemohon = Pemohon::factory()->de($kementerian)->create();
+    $user = User::factory()->pemohon($pemohon)->create();
+
+    Livewire::actingAs($user)
+        ->test('pages::pemohon.permohonan.borang')
+        ->set('tajuk', 'Projek E2E')
+        ->set('jumlah_dipohon', '600000')
+        ->set('tujuan', 'Pembinaan')
+        ->set('tempoh_bulan', 24)
+        ->call('submit')
+        ->assertHasNoErrors()
+        ->assertRedirect(route('permohonan.index'));
+
+    $permohonan = $pemohon->permohonans()->first();
+    expect($permohonan->sumber_dana)->toBe(SumberDana::DE)
+        ->and($permohonan->kementerian_pengawal_id)->toBe($kementerian->id)
+        ->and($permohonan->status)->toBe(PermohonanStatus::MenungguSemakanKelengkapan);
+});
+
+test('draf baharu KWAPBB-tanpa-kementerian mewarisi routing dan terus ke SID', function () {
+    Notification::fake();
+    $pemohon = Pemohon::factory()->kwapbbTanpaKementerian()->create();
+    $user = User::factory()->pemohon($pemohon)->create();
+
+    Livewire::actingAs($user)
+        ->test('pages::pemohon.permohonan.borang')
+        ->set('tajuk', 'Projek Skip')
+        ->set('jumlah_dipohon', '400000')
+        ->set('tujuan', 'Operasi')
+        ->set('tempoh_bulan', 12)
+        ->call('submit')
+        ->assertHasNoErrors()
+        ->assertRedirect(route('permohonan.index'));
+
+    expect($pemohon->permohonans()->first()->status)->toBe(PermohonanStatus::DalamSemakanSID);
 });

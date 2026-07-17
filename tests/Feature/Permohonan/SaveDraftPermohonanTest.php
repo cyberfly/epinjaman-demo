@@ -3,6 +3,7 @@
 use App\Actions\Permohonan\SaveDraftPermohonan;
 use App\Enums\PermohonanStatus;
 use App\Enums\SumberDana;
+use App\Models\KementerianPengawal;
 use App\Models\Pemohon;
 
 test('mencipta draf permohonan baharu untuk organisasi', function () {
@@ -37,4 +38,28 @@ test('satu organisasi boleh mempunyai berbilang permohonan', function () {
     app(SaveDraftPermohonan::class)->handle($pemohon, ['tajuk' => 'Kedua']);
 
     expect($pemohon->permohonans()->count())->toBe(2);
+});
+
+test('draf baharu mewarisi Sumber Dana & Kementerian Pengawal organisasi', function () {
+    $kementerian = KementerianPengawal::factory()->create();
+    $pemohon = Pemohon::factory()->de($kementerian)->create();
+
+    $permohonan = app(SaveDraftPermohonan::class)->handle($pemohon, ['tajuk' => 'Projek']);
+
+    expect($permohonan->sumber_dana)->toBe(SumberDana::DE)
+        ->and($permohonan->ada_kementerian_pengawal)->toBeFalse()
+        ->and($permohonan->kementerian_pengawal_id)->toBe($kementerian->id);
+});
+
+test('draf baharu mengabaikan sumber dana yang dihantar dalam data borang', function () {
+    $pemohon = Pemohon::factory()->kwapbbTanpaKementerian()->create();
+
+    // Even if a crafted request smuggles sumber_dana in, the write path ignores
+    // it — the organisation's value wins (ticket 14/16).
+    $permohonan = app(SaveDraftPermohonan::class)->handle($pemohon, [
+        'tajuk' => 'Projek',
+        'sumber_dana' => SumberDana::DE->value,
+    ]);
+
+    expect($permohonan->sumber_dana)->toBe(SumberDana::KWAPBB);
 });

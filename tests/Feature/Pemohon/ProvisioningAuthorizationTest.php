@@ -1,6 +1,8 @@
 <?php
 
+use App\Enums\SumberDana;
 use App\Enums\UserRole;
+use App\Models\KementerianPengawal;
 use App\Models\Pemohon;
 use App\Models\User;
 use Illuminate\Support\Facades\Notification;
@@ -28,15 +30,20 @@ test('SID boleh cipta organisasi dan tambah pengguna melalui skrin', function ()
     Notification::fake();
 
     $sid = User::factory()->role(UserRole::PSID)->create();
+    $kementerian = KementerianPengawal::factory()->create();
 
     Livewire::actingAs($sid)
         ->test('pages::sid.organisasi-pemohon')
         ->set('namaOrganisasi', 'Agensi XYZ')
+        ->set('sumberDana', SumberDana::DE->value)
+        ->set('kementerianPengawalId', $kementerian->id)
         ->call('ciptaOrganisasi')
         ->assertHasNoErrors();
 
     $pemohon = Pemohon::firstWhere('nama', 'Agensi XYZ');
-    expect($pemohon)->not->toBeNull();
+    expect($pemohon)->not->toBeNull()
+        ->and($pemohon->sumber_dana)->toBe(SumberDana::DE)
+        ->and($pemohon->kementerian_pengawal_id)->toBe($kementerian->id);
 
     Livewire::actingAs($sid)
         ->test('pages::sid.organisasi-pemohon')
@@ -47,4 +54,28 @@ test('SID boleh cipta organisasi dan tambah pengguna melalui skrin', function ()
         ->assertHasNoErrors();
 
     expect($pemohon->users()->count())->toBe(1);
+});
+
+test('cipta organisasi memerlukan Sumber Dana', function () {
+    $sid = User::factory()->role(UserRole::PSID)->create();
+
+    Livewire::actingAs($sid)
+        ->test('pages::sid.organisasi-pemohon')
+        ->set('namaOrganisasi', 'Tanpa Sumber')
+        ->call('ciptaOrganisasi')
+        ->assertHasErrors('sumberDana');
+});
+
+test('cipta organisasi KWAPBB tanpa kementerian tidak memerlukan kementerian', function () {
+    $sid = User::factory()->role(UserRole::PSID)->create();
+
+    Livewire::actingAs($sid)
+        ->test('pages::sid.organisasi-pemohon')
+        ->set('namaOrganisasi', 'Agensi KWAPBB')
+        ->set('sumberDana', SumberDana::KWAPBB->value)
+        ->set('adaKementerianPengawal', false)
+        ->call('ciptaOrganisasi')
+        ->assertHasNoErrors();
+
+    expect(Pemohon::firstWhere('nama', 'Agensi KWAPBB')->sumber_dana)->toBe(SumberDana::KWAPBB);
 });

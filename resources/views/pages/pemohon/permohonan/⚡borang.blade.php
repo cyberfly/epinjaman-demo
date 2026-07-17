@@ -6,6 +6,7 @@ use App\Actions\Permohonan\UploadPermohonanDocument;
 use App\Enums\SumberDana;
 use App\Models\ChecklistItem;
 use App\Models\KementerianPengawal;
+use App\Models\Pemohon;
 use App\Models\Permohonan;
 use Flux\Flux;
 use Illuminate\Validation\ValidationException;
@@ -36,8 +37,14 @@ new #[Layout('layouts.app')] #[Title('Borang Permohonan')] class extends Compone
     #[Locked]
     public ?string $sumber_dana = null;
 
+    /**
+     * The controlling-ministry routing fields are also set upstream by SID and
+     * shown read-only here (ticket 16). Locked & dropped from the write path.
+     */
+    #[Locked]
     public ?bool $ada_kementerian_pengawal = null;
 
+    #[Locked]
     public ?int $kementerian_pengawal_id = null;
 
     public ?int $selectedChecklistItemId = null;
@@ -51,8 +58,26 @@ new #[Layout('layouts.app')] #[Title('Borang Permohonan')] class extends Compone
             $this->permohonanId = $permohonan->id;
             $this->fillFromModel($permohonan);
         } else {
-            abort_unless(auth()->user()?->isPemohon() ?? false, 403);
+            $user = auth()->user();
+            abort_unless($user?->isPemohon() ?? false, 403);
+            $this->fillRoutingFromPemohon($user->pemohon);
         }
+    }
+
+    /**
+     * A new draft inherits its funding-source routing from the organisation
+     * (ticket 16); pre-fill the read-only display so the Pemohon sees it before
+     * the first save.
+     */
+    private function fillRoutingFromPemohon(?Pemohon $pemohon): void
+    {
+        if ($pemohon === null) {
+            return;
+        }
+
+        $this->sumber_dana = $pemohon->sumber_dana?->value;
+        $this->ada_kementerian_pengawal = $pemohon->ada_kementerian_pengawal;
+        $this->kementerian_pengawal_id = $pemohon->kementerian_pengawal_id;
     }
 
     private function fillFromModel(Permohonan $permohonan): void
@@ -76,12 +101,15 @@ new #[Layout('layouts.app')] #[Title('Borang Permohonan')] class extends Compone
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Collection<int, KementerianPengawal>
+     * Name of the stored controlling ministry for read-only display, or a dash
+     * when none applies (ticket 16).
      */
     #[\Livewire\Attributes\Computed]
-    public function kementerianList()
+    public function kementerianPengawalNama(): string
     {
-        return KementerianPengawal::orderBy('nama')->get();
+        return $this->kementerian_pengawal_id !== null
+            ? (KementerianPengawal::find($this->kementerian_pengawal_id)?->nama ?? '—')
+            : '—';
     }
 
     #[\Livewire\Attributes\Computed]
@@ -109,8 +137,6 @@ new #[Layout('layouts.app')] #[Title('Borang Permohonan')] class extends Compone
             'jumlah_dipohon' => $this->jumlah_dipohon,
             'tujuan' => $this->tujuan ?: null,
             'tempoh_bulan' => $this->tempoh_bulan,
-            'ada_kementerian_pengawal' => $this->ada_kementerian_pengawal,
-            'kementerian_pengawal_id' => $this->kementerian_pengawal_id,
         ];
     }
 
@@ -197,17 +223,13 @@ new #[Layout('layouts.app')] #[Title('Borang Permohonan')] class extends Compone
             data-test="sumber-dana-readonly"
         />
 
-        @if ($sumber_dana === SumberDana::KWAPBB->value)
-            <flux:switch wire:model.live="ada_kementerian_pengawal" :label="__('Ada Kementerian Pengawal?')" />
-        @endif
-
-        @if ($sumber_dana === SumberDana::DE->value || ($sumber_dana === SumberDana::KWAPBB->value && $ada_kementerian_pengawal))
-            <flux:select wire:model="kementerian_pengawal_id" :label="__('Kementerian Pengawal')" placeholder="{{ __('Pilih kementerian') }}">
-                @foreach ($this->kementerianList as $kementerian)
-                    <flux:select.option :value="$kementerian->id">{{ $kementerian->nama }}</flux:select.option>
-                @endforeach
-            </flux:select>
-        @endif
+        <flux:input
+            :value="$this->kementerianPengawalNama"
+            :label="__('Kementerian Pengawal')"
+            :description="__('Ditetapkan di peringkat SID — tidak boleh diubah oleh Pemohon.')"
+            readonly
+            data-test="kementerian-pengawal-readonly"
+        />
 
         @if ($this->permohonan === null || $this->permohonan->status->isDraf())
             <div class="flex gap-2">

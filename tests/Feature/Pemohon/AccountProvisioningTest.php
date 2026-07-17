@@ -4,7 +4,9 @@ use App\Actions\Account\ActivateAccount;
 use App\Actions\Pemohon\CreatePemohonOrganisasi;
 use App\Actions\Pemohon\ProvisionPemohonUser;
 use App\Enums\PemohonStatus;
+use App\Enums\SumberDana;
 use App\Enums\UserRole;
+use App\Models\KementerianPengawal;
 use App\Models\Pemohon;
 use App\Models\User;
 use App\Notifications\AccountActivationNotification;
@@ -21,6 +23,21 @@ test('SID mencipta organisasi Pemohon dengan status Pemohon', function () {
         'nama' => 'Agensi Pembangunan ABC',
         'status' => PemohonStatus::Pemohon->value,
     ]);
+});
+
+test('SID menetapkan Sumber Dana & Kementerian Pengawal organisasi semasa provision', function () {
+    $kementerian = KementerianPengawal::factory()->create();
+
+    $pemohon = app(CreatePemohonOrganisasi::class)->handle(
+        'Agensi DE',
+        SumberDana::DE,
+        false,
+        $kementerian->id,
+    );
+
+    expect($pemohon->sumber_dana)->toBe(SumberDana::DE)
+        ->and($pemohon->ada_kementerian_pengawal)->toBeFalse()
+        ->and($pemohon->kementerian_pengawal_id)->toBe($kementerian->id);
 });
 
 test('memprovision pengguna Pemohon dalam keadaan belum aktif dan menghantar e-mel pengaktifan', function () {

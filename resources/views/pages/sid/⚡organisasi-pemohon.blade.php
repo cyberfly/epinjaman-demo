@@ -2,9 +2,12 @@
 
 use App\Actions\Pemohon\CreatePemohonOrganisasi;
 use App\Actions\Pemohon\ProvisionPemohonUser;
+use App\Enums\SumberDana;
+use App\Models\KementerianPengawal;
 use App\Models\Pemohon;
 use Flux\Flux;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Validation\Rule;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
@@ -12,6 +15,12 @@ use Livewire\Component;
 
 new #[Layout('layouts.app')] #[Title('Organisasi Pemohon')] class extends Component {
     public string $namaOrganisasi = '';
+
+    public ?string $sumberDana = null;
+
+    public ?bool $adaKementerianPengawal = null;
+
+    public ?int $kementerianPengawalId = null;
 
     public ?int $selectedPemohonId = null;
 
@@ -37,19 +46,42 @@ new #[Layout('layouts.app')] #[Title('Organisasi Pemohon')] class extends Compon
     }
 
     /**
-     * Create a new Pemohon organisation.
+     * @return \Illuminate\Database\Eloquent\Collection<int, KementerianPengawal>
+     */
+    #[Computed]
+    public function kementerianList()
+    {
+        return KementerianPengawal::orderBy('nama')->get();
+    }
+
+    /**
+     * Create a new Pemohon organisation together with its funding-source routing
+     * determinants (Sumber Dana + controlling ministry), which SID sets here and
+     * every Permohonan inherits (ticket 16, ADR-0004).
      */
     public function ciptaOrganisasi(CreatePemohonOrganisasi $createPemohonOrganisasi): void
     {
         Gate::authorize('provision-accounts');
 
+        $isKwapbb = $this->sumberDana === SumberDana::KWAPBB->value;
+        $requiresMinistry = $this->sumberDana === SumberDana::DE->value
+            || ($isKwapbb && $this->adaKementerianPengawal === true);
+
         $validated = $this->validate([
             'namaOrganisasi' => ['required', 'string', 'max:255'],
+            'sumberDana' => ['required', Rule::enum(SumberDana::class)],
+            'adaKementerianPengawal' => [Rule::requiredIf($isKwapbb), 'nullable', 'boolean'],
+            'kementerianPengawalId' => [Rule::requiredIf($requiresMinistry), 'nullable', 'exists:kementerian_pengawals,id'],
         ]);
 
-        $createPemohonOrganisasi->handle($validated['namaOrganisasi']);
+        $createPemohonOrganisasi->handle(
+            $validated['namaOrganisasi'],
+            SumberDana::from($validated['sumberDana']),
+            $isKwapbb ? (bool) $this->adaKementerianPengawal : false,
+            $requiresMinistry ? (int) $validated['kementerianPengawalId'] : null,
+        );
 
-        $this->reset('namaOrganisasi');
+        $this->reset('namaOrganisasi', 'sumberDana', 'adaKementerianPengawal', 'kementerianPengawalId');
         unset($this->pemohons);
 
         Flux::toast(variant: 'success', text: __('Organisasi Pemohon dicipta.'));
@@ -87,6 +119,25 @@ new #[Layout('layouts.app')] #[Title('Organisasi Pemohon')] class extends Compon
                 <flux:heading>{{ __('Cipta Organisasi Baharu') }}</flux:heading>
                 <form wire:submit="ciptaOrganisasi" class="space-y-4">
                     <flux:input wire:model="namaOrganisasi" :label="__('Nama organisasi')" required />
+
+                    <flux:select wire:model.live="sumberDana" :label="__('Sumber Dana')" placeholder="{{ __('Pilih sumber dana') }}">
+                        @foreach (SumberDana::cases() as $sumber)
+                            <flux:select.option :value="$sumber->value">{{ $sumber->label() }}</flux:select.option>
+                        @endforeach
+                    </flux:select>
+
+                    @if ($sumberDana === SumberDana::KWAPBB->value)
+                        <flux:switch wire:model.live="adaKementerianPengawal" :label="__('Ada Kementerian Pengawal?')" />
+                    @endif
+
+                    @if ($sumberDana === SumberDana::DE->value || ($sumberDana === SumberDana::KWAPBB->value && $adaKementerianPengawal))
+                        <flux:select wire:model="kementerianPengawalId" :label="__('Kementerian Pengawal')" placeholder="{{ __('Pilih kementerian') }}">
+                            @foreach ($this->kementerianList as $kementerian)
+                                <flux:select.option :value="$kementerian->id">{{ $kementerian->nama }}</flux:select.option>
+                            @endforeach
+                        </flux:select>
+                    @endif
+
                     <flux:button variant="primary" type="submit" data-test="cipta-organisasi-button">
                         {{ __('Cipta') }}
                     </flux:button>
@@ -115,6 +166,7 @@ new #[Layout('layouts.app')] #[Title('Organisasi Pemohon')] class extends Compon
             <flux:table class="mt-4">
                 <flux:table.columns>
                     <flux:table.column>{{ __('Organisasi') }}</flux:table.column>
+                    <flux:table.column>{{ __('Sumber Dana') }}</flux:table.column>
                     <flux:table.column>{{ __('Status') }}</flux:table.column>
                     <flux:table.column>{{ __('Bil. Pengguna') }}</flux:table.column>
                 </flux:table.columns>
@@ -122,6 +174,7 @@ new #[Layout('layouts.app')] #[Title('Organisasi Pemohon')] class extends Compon
                     @foreach ($this->pemohons as $pemohon)
                         <flux:table.row wire:key="pemohon-{{ $pemohon->id }}">
                             <flux:table.cell>{{ $pemohon->nama }}</flux:table.cell>
+                            <flux:table.cell>{{ $pemohon->sumber_dana?->label() ?? '—' }}</flux:table.cell>
                             <flux:table.cell>{{ $pemohon->status->label() }}</flux:table.cell>
                             <flux:table.cell>{{ $pemohon->users_count }}</flux:table.cell>
                         </flux:table.row>
