@@ -19,6 +19,13 @@ use Illuminate\Support\Carbon;
  * @property bool $disahkan_buu
  * @property int|null $disahkan_oleh
  * @property Carbon|null $disahkan_pada
+ * @property bool $tandatangan_manual_selesai
+ * @property Carbon|null $tandatangan_manual_tarikh
+ * @property int|null $tandatangan_manual_oleh
+ * @property string|null $tandatangan_manual_imbasan_path
+ * @property bool $penyeteman_selesai
+ * @property Carbon|null $penyeteman_tarikh
+ * @property int|null $penyeteman_oleh
  */
 class Perjanjian extends Model
 {
@@ -34,6 +41,13 @@ class Perjanjian extends Model
         'disahkan_buu',
         'disahkan_oleh',
         'disahkan_pada',
+        'tandatangan_manual_selesai',
+        'tandatangan_manual_tarikh',
+        'tandatangan_manual_oleh',
+        'tandatangan_manual_imbasan_path',
+        'penyeteman_selesai',
+        'penyeteman_tarikh',
+        'penyeteman_oleh',
     ];
 
     /**
@@ -45,6 +59,10 @@ class Perjanjian extends Model
             'dimuat_naik_pada' => 'datetime',
             'disahkan_buu' => 'boolean',
             'disahkan_pada' => 'datetime',
+            'tandatangan_manual_selesai' => 'boolean',
+            'tandatangan_manual_tarikh' => 'date',
+            'penyeteman_selesai' => 'boolean',
+            'penyeteman_tarikh' => 'date',
         ];
     }
 

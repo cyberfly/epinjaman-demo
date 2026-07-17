@@ -131,6 +131,23 @@ class PermohonanPolicy
     }
 
     /**
+     * SID records the manual signing session.
+     */
+    public function recordTandatanganManual(User $user, Permohonan $permohonan): bool
+    {
+        return $user->isSid() && $permohonan->status === PermohonanStatus::DalamPerjanjian;
+    }
+
+    /**
+     * The Peminjam organisation, or SID on its behalf, records LHDNM stamping.
+     */
+    public function recordPenyeteman(User $user, Permohonan $permohonan): bool
+    {
+        return ($user->isSid() || $this->belongsToOrganisation($user, $permohonan))
+            && $permohonan->status === PermohonanStatus::DalamPerjanjian;
+    }
+
+    /**
      * SID or the owning organisation may record negotiation terms while in
      * the Rundingan stage.
      */

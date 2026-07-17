@@ -34,6 +34,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $diterima_sid_pada
  * @property Carbon|null $ditawarkan_pada
  * @property Carbon|null $diterima_setuju_pada
+ * @property Carbon|null $penyeteman_pada
  * @property-read Pemohon $pemohon
  * @property-read KementerianPengawal|null $kementerianPengawal
  */
@@ -58,6 +59,7 @@ class Permohonan extends Model
         'diterima_sid_pada',
         'ditawarkan_pada',
         'diterima_setuju_pada',
+        'penyeteman_pada',
         'traffic_light',
     ];
 
@@ -78,6 +80,7 @@ class Permohonan extends Model
             'diterima_sid_pada' => 'datetime',
             'ditawarkan_pada' => 'datetime',
             'diterima_setuju_pada' => 'datetime',
+            'penyeteman_pada' => 'datetime',
         ];
     }
 

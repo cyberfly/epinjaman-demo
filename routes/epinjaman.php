@@ -39,6 +39,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // SID / BUU agreement review.
     Route::livewire('perjanjian/{permohonan}/semakan', 'pages::perjanjian.semakan')
         ->name('perjanjian.semakan');
+    Route::livewire('perjanjian/{permohonan}/tandatangan-manual', 'pages::perjanjian.tandatangan-manual')
+        ->name('perjanjian.tandatangan-manual');
     Route::livewire('permohonan/{permohonan}', 'pages::pemohon.permohonan.borang')
         ->name('permohonan.borang');
 
