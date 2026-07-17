@@ -58,6 +58,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('sid.kuiri');
     Route::livewire('sid/permohonan/{permohonan}/rundingan', 'pages::sid.rundingan')
         ->name('sid.rundingan');
+    Route::livewire('sid/permohonan/{permohonan}/syarat-duluan', 'pages::sid.syarat-duluan')
+        ->name('sid.syarat-duluan');
+    Route::livewire('sid/permohonan/{permohonan}/sejarah', 'pages::sid.sejarah')
+        ->name('sid.sejarah');
+
+    // Peminjam — Conditions Precedent (CP) upload.
+    Route::livewire('permohonan/{permohonan}/syarat-duluan', 'pages::pemohon.permohonan.syarat-duluan')
+        ->name('permohonan.syarat-duluan');
 
     // Kuiri reply (Pemohon / Kementerian Pengawal).
     Route::livewire('kuiri/{kuiri}/balas', 'pages::kuiri.balas')->name('kuiri.balas');

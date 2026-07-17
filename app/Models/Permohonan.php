@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\KuiriStatus;
 use App\Enums\PermohonanStatus;
 use App\Enums\SumberDana;
+use App\Enums\SyaratDuluanJenis;
 use App\Enums\TrafficLight;
 use Database\Factories\PermohonanFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -35,6 +36,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $ditawarkan_pada
  * @property Carbon|null $diterima_setuju_pada
  * @property Carbon|null $penyeteman_pada
+ * @property bool $cs_disahkan
  * @property-read Pemohon $pemohon
  * @property-read KementerianPengawal|null $kementerianPengawal
  */
@@ -60,6 +62,7 @@ class Permohonan extends Model
         'ditawarkan_pada',
         'diterima_setuju_pada',
         'penyeteman_pada',
+        'cs_disahkan',
         'traffic_light',
     ];
 
@@ -81,6 +84,7 @@ class Permohonan extends Model
             'ditawarkan_pada' => 'datetime',
             'diterima_setuju_pada' => 'datetime',
             'penyeteman_pada' => 'datetime',
+            'cs_disahkan' => 'boolean',
         ];
     }
 
@@ -162,6 +166,40 @@ class Permohonan extends Model
     public function perjanjian(): HasOne
     {
         return $this->hasOne(Perjanjian::class)->latestOfMany();
+    }
+
+    /**
+     * @return HasMany<SyaratDuluan, $this>
+     */
+    public function syaratDuluans(): HasMany
+    {
+        return $this->hasMany(SyaratDuluan::class);
+    }
+
+    /**
+     * Every defined CP jenis has an uploaded, PSID-verified document.
+     */
+    public function semuaSyaratDuluanDisahkan(): bool
+    {
+        $disahkan = $this->syaratDuluans()->where('disahkan', true)->pluck('jenis');
+
+        foreach (SyaratDuluanJenis::cases() as $jenis) {
+            if (! $disahkan->contains($jenis) && ! $disahkan->contains($jenis->value)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * LENGKAP lock condition: all CP verified and CS confirmed (ticket 13).
+     */
+    public function bolehDikunciLengkap(): bool
+    {
+        return $this->status === PermohonanStatus::DalamPenyediaanCP
+            && $this->semuaSyaratDuluanDisahkan()
+            && $this->cs_disahkan;
     }
 
     /**

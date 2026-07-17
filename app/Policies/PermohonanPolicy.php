@@ -148,6 +148,32 @@ class PermohonanPolicy
     }
 
     /**
+     * The Peminjam organisation (or SID) uploads CP documents.
+     */
+    public function uploadSyaratDuluan(User $user, Permohonan $permohonan): bool
+    {
+        return ($user->isSid() || $this->belongsToOrganisation($user, $permohonan))
+            && $permohonan->status === PermohonanStatus::DalamPenyediaanCP;
+    }
+
+    /**
+     * PSID verifies CP items, confirms CS, and locks the application LENGKAP.
+     */
+    public function manageSyaratDuluan(User $user, Permohonan $permohonan): bool
+    {
+        return $user->role === UserRole::PSID
+            && $permohonan->status === PermohonanStatus::DalamPenyediaanCP;
+    }
+
+    /**
+     * SID / audit / any internal officer may view the full audit history.
+     */
+    public function viewHistory(User $user, Permohonan $permohonan): bool
+    {
+        return $user->role !== null && $user->role !== UserRole::Pemohon;
+    }
+
+    /**
      * SID or the owning organisation may record negotiation terms while in
      * the Rundingan stage.
      */

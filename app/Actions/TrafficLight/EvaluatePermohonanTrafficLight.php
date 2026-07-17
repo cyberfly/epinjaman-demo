@@ -70,6 +70,11 @@ class EvaluatePermohonanTrafficLight
                 self::WARNING_DAYS_MEDIUM,
                 'Penyediaan Perjanjian',
             ],
+            PermohonanStatus::DalamPenyediaanCP => [
+                ($permohonan->penyeteman_pada ?? $permohonan->created_at)->copy()->addDays(60),
+                self::WARNING_DAYS_MEDIUM,
+                'Syarat Duluan',
+            ],
             default => null,
         };
     }

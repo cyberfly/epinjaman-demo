@@ -25,6 +25,9 @@ new #[Layout('layouts.app')] #[Title('Tray Tugasan SID')] class extends Componen
             PermohonanStatus::DalamSemakanSID,
             PermohonanStatus::DalamKuiri,
             PermohonanStatus::DalamRundingan,
+            PermohonanStatus::DalamPerjanjian,
+            PermohonanStatus::DalamPenyediaanCP,
+            PermohonanStatus::Lengkap,
         ];
     }
 
@@ -71,6 +74,18 @@ new #[Layout('layouts.app')] #[Title('Tray Tugasan SID')] class extends Componen
                             @elseif ($permohonan->status === PermohonanStatus::DalamRundingan)
                                 <flux:button size="sm" variant="primary" :href="route('sid.rundingan', $permohonan)" wire:navigate>
                                     {{ __('Rundingan / Memo') }}
+                                </flux:button>
+                            @elseif ($permohonan->status === PermohonanStatus::DalamPerjanjian)
+                                <flux:button size="sm" variant="primary" :href="route('perjanjian.semakan', $permohonan)" wire:navigate>
+                                    {{ __('Perjanjian') }}
+                                </flux:button>
+                            @elseif ($permohonan->status === PermohonanStatus::DalamPenyediaanCP)
+                                <flux:button size="sm" variant="primary" :href="route('sid.syarat-duluan', $permohonan)" wire:navigate>
+                                    {{ __('Syarat Duluan') }}
+                                </flux:button>
+                            @elseif ($permohonan->status === PermohonanStatus::Lengkap)
+                                <flux:button size="sm" variant="ghost" :href="route('sid.sejarah', $permohonan)" wire:navigate>
+                                    {{ __('Sejarah') }}
                                 </flux:button>
                             @endif
                         </flux:table.cell>
