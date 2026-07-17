@@ -33,6 +33,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('permohonan.tandatangan-p1');
     Route::livewire('permohonan/{permohonan}/surat-tawaran', 'pages::pemohon.permohonan.surat-tawaran')
         ->name('permohonan.surat-tawaran');
+    Route::livewire('permohonan/{permohonan}/perjanjian', 'pages::pemohon.permohonan.perjanjian')
+        ->name('permohonan.perjanjian');
+
+    // SID / BUU agreement review.
+    Route::livewire('perjanjian/{permohonan}/semakan', 'pages::perjanjian.semakan')
+        ->name('perjanjian.semakan');
     Route::livewire('permohonan/{permohonan}', 'pages::pemohon.permohonan.borang')
         ->name('permohonan.borang');
 

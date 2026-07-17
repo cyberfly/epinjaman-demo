@@ -154,6 +154,14 @@ class Permohonan extends Model
     }
 
     /**
+     * @return HasOne<Perjanjian, $this>
+     */
+    public function perjanjian(): HasOne
+    {
+        return $this->hasOne(Perjanjian::class)->latestOfMany();
+    }
+
+    /**
      * Whether every Kuiri raised on this application is Berpuas Hati and at
      * least one Kuiri exists (ticket 07 gate to Rundingan).
      */

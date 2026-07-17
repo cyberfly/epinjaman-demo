@@ -103,6 +103,34 @@ class PermohonanPolicy
     }
 
     /**
+     * The owning organisation uploads the draft agreement while in the
+     * agreement-preparation stage.
+     */
+    public function uploadDrafPerjanjian(User $user, Permohonan $permohonan): bool
+    {
+        return $this->belongsToOrganisation($user, $permohonan)
+            && $permohonan->status === PermohonanStatus::DalamPerjanjian;
+    }
+
+    /**
+     * SID and BUU review the draft agreement.
+     */
+    public function reviewPerjanjian(User $user, Permohonan $permohonan): bool
+    {
+        return ($user->isSid() || $user->role === UserRole::BUU)
+            && $permohonan->status === PermohonanStatus::DalamPerjanjian;
+    }
+
+    /**
+     * Only BUU confirms the draft agreement is orderly.
+     */
+    public function approvePerjanjian(User $user, Permohonan $permohonan): bool
+    {
+        return $user->role === UserRole::BUU
+            && $permohonan->status === PermohonanStatus::DalamPerjanjian;
+    }
+
+    /**
      * SID or the owning organisation may record negotiation terms while in
      * the Rundingan stage.
      */

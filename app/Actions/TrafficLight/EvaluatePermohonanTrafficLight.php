@@ -21,6 +21,9 @@ class EvaluatePermohonanTrafficLight
     /** Warning window (days) for short relative deadlines (e.g. 14-day). */
     private const WARNING_DAYS_SHORT = 4;
 
+    /** Warning window (days) for medium/long relative deadlines (60/90-day). */
+    private const WARNING_DAYS_MEDIUM = 14;
+
     public function __construct(private TrafficLightEngine $engine) {}
 
     public function handle(Permohonan $permohonan, ?CarbonInterface $now = null): ?TrafficLightAssessment
@@ -61,6 +64,11 @@ class EvaluatePermohonanTrafficLight
                 ($permohonan->ditawarkan_pada ?? $permohonan->created_at)->copy()->addDays(14),
                 self::WARNING_DAYS_SHORT,
                 'Setuju Terima',
+            ],
+            PermohonanStatus::DalamPerjanjian => [
+                ($permohonan->diterima_setuju_pada ?? $permohonan->created_at)->copy()->addDays(90),
+                self::WARNING_DAYS_MEDIUM,
+                'Penyediaan Perjanjian',
             ],
             default => null,
         };

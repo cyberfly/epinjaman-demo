@@ -65,6 +65,10 @@ new #[Layout('layouts.app')] #[Title('Permohonan Saya')] class extends Component
                                 <flux:button size="sm" variant="primary" :href="route('permohonan.surat-tawaran', $permohonan)" wire:navigate>
                                     {{ __('Surat Tawaran') }}
                                 </flux:button>
+                            @elseif ($permohonan->status === PermohonanStatus::DalamPerjanjian)
+                                <flux:button size="sm" variant="primary" :href="route('permohonan.perjanjian', $permohonan)" wire:navigate>
+                                    {{ __('Draf Perjanjian') }}
+                                </flux:button>
                             @else
                                 <flux:button size="sm" variant="ghost" :href="route('permohonan.borang', $permohonan)" wire:navigate>
                                     {{ $permohonan->status === PermohonanStatus::Draf ? __('Edit') : __('Lihat') }}
