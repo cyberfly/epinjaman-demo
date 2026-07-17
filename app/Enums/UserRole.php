@@ -74,6 +74,30 @@ enum UserRole: string
     }
 
     /**
+     * The next level in the approval hierarchy, or null if this is the last
+     * (YB MK) or not part of the hierarchy.
+     */
+    public function nextInHierarchy(): ?self
+    {
+        $hierarchy = self::approvalHierarchy();
+        $index = array_search($this, $hierarchy, true);
+
+        return $index === false ? null : ($hierarchy[$index + 1] ?? null);
+    }
+
+    /**
+     * The previous level in the approval hierarchy, or null if this is the
+     * first (PSID) or not part of the hierarchy.
+     */
+    public function previousInHierarchy(): ?self
+    {
+        $hierarchy = self::approvalHierarchy();
+        $index = array_search($this, $hierarchy, true);
+
+        return $index === false || $index === 0 ? null : $hierarchy[$index - 1];
+    }
+
+    /**
      * Whether this role may provision Pemohon organisations and users.
      */
     public function canProvisionAccounts(): bool

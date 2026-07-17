@@ -51,4 +51,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Kuiri reply (Pemohon / Kementerian Pengawal).
     Route::livewire('kuiri/{kuiri}/balas', 'pages::kuiri.balas')->name('kuiri.balas');
+
+    // Approval hierarchy.
+    Route::livewire('kelulusan/tray', 'pages::kelulusan.tray')->name('kelulusan.tray');
+    Route::livewire('kelulusan/memo/{memo}', 'pages::kelulusan.memo')->name('kelulusan.memo');
 });

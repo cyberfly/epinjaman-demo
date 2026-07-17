@@ -8,6 +8,7 @@ use Database\Factories\MemoFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 
 /**
@@ -55,5 +56,11 @@ class Memo extends Model
         return $this->belongsTo(Permohonan::class);
     }
 
-    // Note: approvalSteps() relationship is added in ticket 09 (approval hierarchy).
+    /**
+     * @return HasMany<ApprovalStep, $this>
+     */
+    public function approvalSteps(): HasMany
+    {
+        return $this->hasMany(ApprovalStep::class);
+    }
 }
