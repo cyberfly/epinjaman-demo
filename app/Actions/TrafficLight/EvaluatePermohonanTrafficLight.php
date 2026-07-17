@@ -18,6 +18,9 @@ class EvaluatePermohonanTrafficLight
     /** Warning window (days) for the fixed-calendar stage deadlines. */
     private const WARNING_DAYS_CALENDAR = 30;
 
+    /** Warning window (days) for short relative deadlines (e.g. 14-day). */
+    private const WARNING_DAYS_SHORT = 4;
+
     public function __construct(private TrafficLightEngine $engine) {}
 
     public function handle(Permohonan $permohonan, ?CarbonInterface $now = null): ?TrafficLightAssessment
@@ -53,6 +56,11 @@ class EvaluatePermohonanTrafficLight
                 $this->nextAnnualDate($permohonan->diterima_sid_pada ?? $permohonan->created_at, 3, 31),
                 self::WARNING_DAYS_CALENDAR,
                 'Rundingan',
+            ],
+            PermohonanStatus::Ditawarkan => [
+                ($permohonan->ditawarkan_pada ?? $permohonan->created_at)->copy()->addDays(14),
+                self::WARNING_DAYS_SHORT,
+                'Setuju Terima',
             ],
             default => null,
         };

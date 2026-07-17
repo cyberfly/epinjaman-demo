@@ -31,6 +31,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('permohonan.baharu');
     Route::livewire('permohonan/{permohonan}/tandatangan-p1', 'pages::pemohon.permohonan.tandatangan-p1')
         ->name('permohonan.tandatangan-p1');
+    Route::livewire('permohonan/{permohonan}/surat-tawaran', 'pages::pemohon.permohonan.surat-tawaran')
+        ->name('permohonan.surat-tawaran');
     Route::livewire('permohonan/{permohonan}', 'pages::pemohon.permohonan.borang')
         ->name('permohonan.borang');
 

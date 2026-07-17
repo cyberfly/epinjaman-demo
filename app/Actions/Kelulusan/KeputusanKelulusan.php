@@ -2,6 +2,7 @@
 
 namespace App\Actions\Kelulusan;
 
+use App\Actions\Permohonan\GenerateSuratTawaran;
 use App\Enums\ApprovalDecision;
 use App\Enums\ApprovalStepAction;
 use App\Enums\PermohonanStatus;
@@ -15,10 +16,12 @@ use DomainException;
  * has reached the YB MK level (ticket 09).
  *
  *  - Tidak Lulus -> the application returns to Rundingan (ticket 08).
- *  - Lulus -> the application is ready for offer-letter generation (ticket 10).
+ *  - Lulus -> the offer letter is generated automatically (ticket 10).
  */
 class KeputusanKelulusan
 {
+    public function __construct(private GenerateSuratTawaran $generateSuratTawaran) {}
+
     public function handle(Memo $memo, User $user, ApprovalDecision $keputusan, ?string $sebab = null): Memo
     {
         if ($memo->permohonan->status !== PermohonanStatus::DalamKelulusan || $memo->keputusan !== null) {
@@ -43,6 +46,8 @@ class KeputusanKelulusan
                 'status' => PermohonanStatus::DalamRundingan,
                 'traffic_light' => null,
             ]);
+        } else {
+            $this->generateSuratTawaran->handle($memo->permohonan);
         }
 
         return $memo;

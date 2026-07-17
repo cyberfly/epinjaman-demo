@@ -40,7 +40,8 @@ test('endorse berurutan penuh PSID -> YB MK, keputusan Lulus, sejarah lengkap', 
     app(KeputusanKelulusan::class)->handle($memo->fresh(), $users[UserRole::YBMK->value], ApprovalDecision::Lulus);
 
     expect($memo->fresh()->keputusan)->toBe(ApprovalDecision::Lulus)
-        ->and($permohonan->fresh()->status)->toBe(PermohonanStatus::DalamKelulusan)
+        ->and($permohonan->fresh()->status)->toBe(PermohonanStatus::Ditawarkan)
+        ->and($permohonan->fresh()->suratTawaran)->not->toBeNull()
         ->and($memo->approvalSteps()->count())->toBe(8);
 });
 

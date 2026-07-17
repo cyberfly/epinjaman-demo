@@ -94,6 +94,15 @@ class PermohonanPolicy
     }
 
     /**
+     * The owning organisation signs the Surat Akuan Penerimaan while offered.
+     */
+    public function signSuratAkuan(User $user, Permohonan $permohonan): bool
+    {
+        return $this->belongsToOrganisation($user, $permohonan)
+            && $permohonan->status === PermohonanStatus::Ditawarkan;
+    }
+
+    /**
      * SID or the owning organisation may record negotiation terms while in
      * the Rundingan stage.
      */

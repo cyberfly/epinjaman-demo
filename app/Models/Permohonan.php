@@ -32,6 +32,8 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $dihantar_pada
  * @property Carbon|null $dihantar_ke_kementerian_pada
  * @property Carbon|null $diterima_sid_pada
+ * @property Carbon|null $ditawarkan_pada
+ * @property Carbon|null $diterima_setuju_pada
  * @property-read Pemohon $pemohon
  * @property-read KementerianPengawal|null $kementerianPengawal
  */
@@ -54,6 +56,8 @@ class Permohonan extends Model
         'dihantar_pada',
         'dihantar_ke_kementerian_pada',
         'diterima_sid_pada',
+        'ditawarkan_pada',
+        'diterima_setuju_pada',
         'traffic_light',
     ];
 
@@ -72,6 +76,8 @@ class Permohonan extends Model
             'dihantar_pada' => 'datetime',
             'dihantar_ke_kementerian_pada' => 'datetime',
             'diterima_sid_pada' => 'datetime',
+            'ditawarkan_pada' => 'datetime',
+            'diterima_setuju_pada' => 'datetime',
         ];
     }
 
@@ -137,6 +143,14 @@ class Permohonan extends Model
     public function memo(): HasOne
     {
         return $this->hasOne(Memo::class)->latestOfMany();
+    }
+
+    /**
+     * @return HasOne<SuratTawaran, $this>
+     */
+    public function suratTawaran(): HasOne
+    {
+        return $this->hasOne(SuratTawaran::class)->latestOfMany();
     }
 
     /**
