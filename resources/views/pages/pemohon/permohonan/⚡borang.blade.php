@@ -189,10 +189,17 @@ new #[Layout('layouts.app')] #[Title('Borang Permohonan')] class extends Compone
             </flux:select>
         @endif
 
-        <div class="flex gap-2">
-            <flux:button variant="filled" wire:click="saveDraft" data-test="save-draft-button">{{ __('Simpan Draf') }}</flux:button>
-            <flux:button variant="primary" wire:click="submit" data-test="submit-permohonan-button">{{ __('Hantar Permohonan') }}</flux:button>
-        </div>
+        @if ($this->permohonan === null || $this->permohonan->status->isDraf())
+            <div class="flex gap-2">
+                <flux:button variant="filled" wire:click="saveDraft" data-test="save-draft-button">{{ __('Simpan Draf') }}</flux:button>
+                <flux:button variant="primary" wire:click="submit" data-test="submit-permohonan-button">{{ __('Hantar Permohonan') }}</flux:button>
+            </div>
+        @else
+            <flux:callout variant="secondary" icon="lock-closed" data-test="permohonan-dihantar-notis">
+                <flux:callout.heading>{{ __('Permohonan telah dihantar') }}</flux:callout.heading>
+                <flux:callout.text>{{ __('Status semasa: :status. Borang ini tidak boleh diubah atau dihantar semula.', ['status' => $this->permohonan->status->label()]) }}</flux:callout.text>
+            </flux:callout>
+        @endif
     </flux:card>
 
     @if ($this->permohonan)

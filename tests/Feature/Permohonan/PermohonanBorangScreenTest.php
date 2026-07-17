@@ -88,3 +88,37 @@ test('pengguna organisasi lain ditolak daripada melihat borang', function () {
         ->test('pages::pemohon.permohonan.borang', ['permohonan' => $permohonan])
         ->assertForbidden();
 });
+
+test('butang hantar tersembunyi untuk permohonan yang sudah dihantar', function () {
+    $pemohon = Pemohon::factory()->create();
+    $user = User::factory()->pemohon($pemohon)->create();
+    $permohonan = Permohonan::factory()->for($pemohon)->status(PermohonanStatus::DalamSemakanSID)->create();
+
+    Livewire::actingAs($user)
+        ->test('pages::pemohon.permohonan.borang', ['permohonan' => $permohonan])
+        ->assertOk()
+        ->assertDontSeeHtml('data-test="submit-permohonan-button"')
+        ->assertDontSeeHtml('data-test="save-draft-button"')
+        ->assertSeeHtml('data-test="permohonan-dihantar-notis"');
+});
+
+test('butang hantar dipaparkan untuk draf', function () {
+    $pemohon = Pemohon::factory()->create();
+    $user = User::factory()->pemohon($pemohon)->create();
+    $permohonan = Permohonan::factory()->for($pemohon)->status(PermohonanStatus::Draf)->create();
+
+    Livewire::actingAs($user)
+        ->test('pages::pemohon.permohonan.borang', ['permohonan' => $permohonan])
+        ->assertSeeHtml('data-test="submit-permohonan-button"');
+});
+
+test('hantar semula permohonan bukan draf ditolak (403)', function () {
+    $pemohon = Pemohon::factory()->create();
+    $user = User::factory()->pemohon($pemohon)->create();
+    $permohonan = Permohonan::factory()->for($pemohon)->status(PermohonanStatus::DalamSemakanSID)->create();
+
+    Livewire::actingAs($user)
+        ->test('pages::pemohon.permohonan.borang', ['permohonan' => $permohonan])
+        ->call('submit')
+        ->assertForbidden();
+});
